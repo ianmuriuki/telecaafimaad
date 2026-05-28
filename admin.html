@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeleCaafimaad — Administration</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script>if(location.hostname==='127.0.0.1')location.replace(location.href.replace('//127.0.0.1','//localhost'));</script>
+</head>
+<body class="page-admin">
+
+  <header class="admin-header">
+    <div class="admin-header-left">
+      <a href="index.html" class="admin-back">&#8592;</a>
+      <div class="admin-brand-block">
+        <span class="admin-brand">TeleCaafimaad</span>
+        <span class="admin-brand-sub">Administration — Banadir Pilot</span>
+      </div>
+    </div>
+    <nav class="admin-tabs" role="tablist" aria-label="Admin sections">
+      <button class="tab-btn is-active" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+      <button class="tab-btn" role="tab" data-tab="caselog" aria-selected="false">Case Log</button>
+      <button class="tab-btn" role="tab" data-tab="doctors" aria-selected="false">Doctor Registry</button>
+      <button class="tab-btn" role="tab" data-tab="dhis2" aria-selected="false">DHIS2 Sync</button>
+      <button class="btn btn-sm btn-outline" id="resetDataBtn" style="margin-left:auto">Reset Demo Data</button>
+    </nav>
+  </header>
+
+  <main class="admin-main">
+
+    <!-- Tab: Overview -->
+    <div class="tab-panel is-active" id="tab-overview" role="tabpanel">
+      <div class="overview-layout">
+        <div class="overview-primary">
+          <div class="overview-section">
+            <h2 class="overview-heading">Pilot Overview</h2>
+            <p class="overview-period">18-month pilot · Banadir District · Started March 2026</p>
+          </div>
+          <div class="metric-block">
+            <div class="metric-row metric-row--large">
+              <div class="metric-item">
+                <span class="mi-value" id="stat-total">—</span>
+                <span class="mi-label">Total consultations</span>
+              </div>
+              <div class="metric-item">
+                <span class="mi-value" id="stat-week">—</span>
+                <span class="mi-label">This week</span>
+              </div>
+              <div class="metric-item">
+                <span class="mi-value" id="stat-doctors">—</span>
+                <span class="mi-label">Active doctors</span>
+              </div>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric-row">
+              <div class="metric-item">
+                <span class="mi-value mi-value--accent" id="stat-dhis2">—</span>
+                <span class="mi-label">DHIS2 push success rate</span>
+              </div>
+              <div class="metric-item">
+                <span class="mi-value" id="stat-referrals">—</span>
+                <span class="mi-label">Referrals issued</span>
+              </div>
+              <div class="metric-item">
+                <span class="mi-value" id="stat-rx">—</span>
+                <span class="mi-label">Prescriptions issued</span>
+              </div>
+              <div class="metric-item">
+                <span class="mi-value" id="stat-followup">—</span>
+                <span class="mi-label">Follow-ups completed</span>
+              </div>
+              <div class="metric-item">
+                <span class="mi-value" id="stat-video">—</span>
+                <span class="mi-label">Video calls initiated</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="overview-secondary">
+          <div class="overview-section">
+            <h3 class="panel-label">Pathway Breakdown</h3>
+            <div class="pathway-breakdown" id="pathwayBreakdown"></div>
+          </div>
+          <div class="overview-section">
+            <h3 class="panel-label">District Activity</h3>
+            <div class="district-list" id="districtList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Case Log -->
+    <div class="tab-panel" id="tab-caselog" role="tabpanel">
+      <div class="table-header">
+        <h2 class="view-title">Case Log</h2>
+        <span class="view-meta" id="caselogMeta"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="caseTable" aria-label="Consultation case log">
+          <thead>
+            <tr>
+              <th>Case ID</th>
+              <th>Date</th>
+              <th>District</th>
+              <th>Specialty</th>
+              <th>Diagnosis</th>
+              <th>Pathway / Mode</th>
+              <th>DHIS2</th>
+            </tr>
+          </thead>
+          <tbody id="caseTableBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination" aria-label="Table pagination"></div>
+    </div>
+
+    <!-- Tab: Doctor Registry -->
+    <div class="tab-panel" id="tab-doctors" role="tabpanel">
+      <div class="table-header">
+        <h2 class="view-title">Doctor Registry</h2>
+        <span class="view-meta">Pilot cohort — click a row to expand details</span>
+      </div>
+      <div class="doctor-registry" id="doctorRegistry"></div>
+    </div>
+
+    <!-- Tab: DHIS2 Sync -->
+    <div class="tab-panel" id="tab-dhis2" role="tabpanel">
+      <div class="table-header">
+        <h2 class="view-title">DHIS2 Sync</h2>
+        <span class="view-meta">National instance · Somalia HMIS · /api/tracker</span>
+      </div>
+      <div class="dhis2-reconcile" id="reconcileSummary"></div>
+      <div class="table-wrap">
+        <table class="data-table" id="dhis2Table" aria-label="DHIS2 push log">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Case ID</th>
+              <th>District</th>
+              <th>Status</th>
+              <th>HTTP</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody id="dhis2TableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="js/db.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

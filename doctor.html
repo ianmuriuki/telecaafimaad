@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeleCaafimaad — Doctor Interface</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script>if(location.hostname==='127.0.0.1')location.replace(location.href.replace('//127.0.0.1','//localhost'));</script>
+</head>
+<body class="page-doctor">
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <div class="dr-layout">
+    <aside class="dr-sidebar">
+      <div class="sidebar-brand">
+        <a href="index.html" class="sidebar-logo">TC</a>
+        <div class="sidebar-doctor-info">
+          <span class="sdi-name">Dr. Amina Hassan</span>
+          <span class="sdi-spec">Cardiology · Toronto</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav" role="navigation">
+        <button class="snav-item is-active" data-view="queue">
+          Case Queue
+          <span class="badge" id="queueBadge">5</span>
+        </button>
+        <button class="snav-item" data-view="mycases">My Cases</button>
+        <button class="snav-item" data-view="schedule">Schedule</button>
+        <button class="snav-item" data-view="profile">Profile</button>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="sidebar-status">
+          <span class="status-dot status-dot--active"></span>
+          Online
+        </span>
+      </div>
+    </aside>
+
+    <main class="dr-main">
+      <div class="dr-mobile-header">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">&#9776;</button>
+        <span class="mobile-view-title" id="mobileViewTitle">Case Queue</span>
+        <span class="badge" id="mobileQueueBadge">5</span>
+      </div>
+
+      <!-- View: Case Queue -->
+      <div class="dr-view" id="view-queue">
+        <div class="view-header">
+          <h1 class="view-title">Case Queue</h1>
+          <span class="view-meta" id="queueMeta">5 pending cases</span>
+        </div>
+        <div class="case-list" id="caseList"></div>
+        <div class="empty-queue hidden" id="emptyQueue">
+          <p class="empty-msg">No pending cases. Queue is clear.</p>
+        </div>
+      </div>
+
+      <!-- View: Case Detail -->
+      <div class="dr-view" id="view-casedetail">
+        <div class="view-header">
+          <button class="back-to-queue" id="backToQueue">&#8592; Back to Queue</button>
+          <h1 class="view-title" id="detailCaseId">Case</h1>
+        </div>
+        <div class="case-detail-layout">
+          <div class="case-intake-panel">
+            <h3 class="panel-label">Patient Intake</h3>
+            <div class="intake-grid" id="intakeDisplay"></div>
+          </div>
+          <div class="case-response-panel">
+            <h3 class="panel-label">Clinical Response</h3>
+            <div class="video-call-panel" id="videoCallPanel" style="margin-bottom:1.5rem;
+              padding:1rem;border:1px solid #E0E0E0;border-radius:4px;background:#F5F5F5;">
+              <div style="font-size:0.75rem;font-weight:600;letter-spacing:0.08em;
+                text-transform:uppercase;color:#757575;margin-bottom:0.75rem;">
+                Video Consultation
+              </div>
+              <div id="videoCallIdle">
+                <p style="font-size:0.9rem;color:#3D3D3D;margin-bottom:0.75rem;">
+                  If this case requires a live video consultation, send the patient
+                  a video call request. They must consent before the call begins.
+                </p>
+                <button class="btn btn-outline" id="initiateVideoBtn">
+                  Request Video Call
+                </button>
+              </div>
+              <div id="videoCallPending" style="display:none;">
+                <p style="font-size:0.9rem;color:#E65100;font-weight:600;margin-bottom:0.75rem;">
+                  Waiting for patient to accept...
+                </p>
+                <a id="doctorJoinLink" href="#" target="_blank"
+                  class="btn btn-primary" style="margin-bottom:0.5rem;">
+                  Join Call Now
+                </a>
+                <button class="btn btn-outline" id="cancelVideoBtn" style="margin-left:0.5rem;">
+                  Cancel Request
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="diagInput">Diagnosis</label>
+              <input type="text" id="diagInput" class="form-input" placeholder="ICD-10 description or free text">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="pathwaySelect">Pathway</label>
+              <select id="pathwaySelect" class="form-select">
+                <option value="">— Select pathway —</option>
+                <option value="prescription">Prescription</option>
+                <option value="lab">Lab Order</option>
+                <option value="referral">Referral</option>
+                <option value="followup">Follow-up</option>
+                <option value="noaction">No Action Required</option>
+              </select>
+            </div>
+            <div id="pathwayFields"></div>
+            <div class="form-group">
+              <label class="form-label" for="clinicalNotes">Clinical Notes</label>
+              <textarea id="clinicalNotes" class="form-textarea" rows="4" placeholder="Clinical observations and instructions for the patient..."></textarea>
+            </div>
+            <span class="form-error" id="responseError" role="alert"></span>
+            <button class="btn btn-primary btn-wide" id="submitResponseBtn">Close Case &amp; Submit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- View: My Cases -->
+      <div class="dr-view" id="view-mycases">
+        <div class="view-header">
+          <h1 class="view-title">My Cases</h1>
+          <span class="view-meta">Closed consultations</span>
+        </div>
+        <div class="closed-case-list" id="myCasesList"></div>
+      </div>
+
+      <!-- View: Schedule -->
+      <div class="dr-view" id="view-schedule">
+        <div class="view-header">
+          <h1 class="view-title">Availability</h1>
+          <span class="view-meta">Click slots to mark availability. Saved automatically. UTC times.</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+          <div>
+            <label style="font-size:0.75rem;font-weight:600;text-transform:uppercase;
+              letter-spacing:0.06em;color:#757575;display:block;margin-bottom:0.3rem;">
+              Your Timezone
+            </label>
+            <select id="tzSelect" class="form-select" style="width:auto;min-width:220px;"></select>
+          </div>
+          <p id="patientTzNote" style="font-size:0.85rem;color:#757575;margin:0;padding-top:1.2rem;">
+            Patients in Somalia are UTC+3 (EAT).
+          </p>
+        </div>
+        <div class="schedule-grid-wrap">
+          <div class="schedule-grid" id="scheduleGrid"></div>
+        </div>
+        <p class="schedule-note">Availability is shared with patients during case matching.</p>
+      </div>
+
+      <!-- View: Profile -->
+      <div class="dr-view" id="view-profile">
+        <div class="view-header">
+          <h1 class="view-title">Profile</h1>
+        </div>
+        <div class="profile-layout">
+          <div class="profile-section">
+            <h3 class="panel-label">Doctor Information</h3>
+            <div class="profile-grid">
+              <div class="profile-row"><span class="pr-label">Full name</span><span class="pr-value">Dr. Amina Hassan</span></div>
+              <div class="profile-row"><span class="pr-label">Specialty</span><span class="pr-value">Cardiology</span></div>
+              <div class="profile-row"><span class="pr-label">Location</span><span class="pr-value">Toronto, Canada</span></div>
+              <div class="profile-row"><span class="pr-label">NHPC Status</span><span class="status-badge status-active">Verified</span></div>
+              <div class="profile-row"><span class="pr-label">Cases closed</span><span class="pr-value" id="profileCaseCount">47</span></div>
+              <div class="profile-row"><span class="pr-label">Joined</span><span class="pr-value">February 2026</span></div>
+            </div>
+          </div>
+          <div class="profile-section">
+            <h3 class="panel-label">NHPC Verification Checklist</h3>
+            <ul class="nhpc-list">
+              <li class="nhpc-item nhpc-done">Medical degree — University of Mogadishu</li>
+              <li class="nhpc-item nhpc-done">Postgraduate specialist certificate</li>
+              <li class="nhpc-item nhpc-done">Current license — College of Physicians &amp; Surgeons Ontario</li>
+              <li class="nhpc-item nhpc-done">Good standing declaration signed</li>
+              <li class="nhpc-item nhpc-done">Identity verified against NHPC register</li>
+              <li class="nhpc-item nhpc-done">Terms of participation accepted</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/doctor.js"></script>
+</body>
+</html>

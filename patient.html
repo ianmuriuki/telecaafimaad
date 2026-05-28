@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeleCaafimaad — Bukaanka</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script>if(location.hostname==='127.0.0.1')location.replace(location.href.replace('//127.0.0.1','//localhost'));</script>
+</head>
+<body class="page-patient lang-so">
+
+  <header class="p-header">
+    <a href="index.html" class="p-back" aria-label="Back to home">&#8592; TC</a>
+    <button class="lang-btn" id="langToggle" aria-label="Toggle language">
+      <span class="t-so">EN</span>
+      <span class="t-en">SO</span>
+    </button>
+  </header>
+
+  <div class="p-progress" id="stepProgress" aria-label="Progress">
+    <div class="progress-step active" data-step="1">
+      <span class="ps-num">1</span>
+      <span class="ps-label t-so">Lambar</span>
+      <span class="ps-label t-en">Phone</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step" data-step="2">
+      <span class="ps-num">2</span>
+      <span class="ps-label t-so">Calaamad</span>
+      <span class="ps-label t-en">Symptoms</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step" data-step="3">
+      <span class="ps-num">3</span>
+      <span class="ps-label t-so">Xaqiijin</span>
+      <span class="ps-label t-en">Confirm</span>
+    </div>
+    <div class="progress-line"></div>
+    <div class="progress-step" data-step="4">
+      <span class="ps-num">4</span>
+      <span class="ps-label t-so">Natiijo</span>
+      <span class="ps-label t-en">Results</span>
+    </div>
+  </div>
+
+  <main class="p-main">
+
+    <!-- Step 1: Phone -->
+    <div class="p-step active" id="step1">
+      <h2 class="step-title">
+        <span class="t-so">Lambarkaaga Telefoonka Geli</span>
+        <span class="t-en">Enter Your Phone Number</span>
+      </h2>
+      <p class="step-sub">
+        <span class="t-so">Ma u baahna aad abuurtid akoon. Lambarkaagu wuxuu noqonayaa furaha xaladaada.</span>
+        <span class="t-en">No account required. Your phone number is your session key.</span>
+      </p>
+      <div class="form-group" id="phoneGroup">
+        <label class="form-label" for="phoneInput">
+          <span class="t-so">Lambar Telefoon</span>
+          <span class="t-en">Phone Number</span>
+        </label>
+        <div class="phone-input-row">
+          <span class="phone-prefix">+252</span>
+          <input type="tel" id="phoneInput" class="form-input" placeholder="61 234 5678" maxlength="12" autocomplete="tel">
+        </div>
+        <span class="form-error" id="phoneError" role="alert"></span>
+      </div>
+      <button class="btn btn-primary" id="sendCodeBtn">
+        <span class="t-so">Koodka Dir</span>
+        <span class="t-en">Send Code</span>
+      </button>
+      <div class="otp-section hidden" id="otpSection">
+        <p class="otp-sent" id="otpSentMsg"></p>
+        <div class="form-group">
+          <label class="form-label" for="otpInput">
+            <span class="t-so">Koodka SMS-ka Geli</span>
+            <span class="t-en">Enter SMS Code</span>
+          </label>
+          <input type="text" id="otpInput" class="form-input form-input--short" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+        </div>
+        <button class="btn btn-primary" id="verifyBtn">
+          <span class="t-so">Xaqiiji</span>
+          <span class="t-en">Verify</span>
+        </button>
+        <span class="form-error" id="otpError" role="alert"></span>
+      </div>
+    </div>
+
+    <!-- Step 2: Symptom Intake -->
+    <div class="p-step" id="step2">
+      <h2 class="step-title">
+        <span class="t-so">Calaamadahaaga Sheeg</span>
+        <span class="t-en">Describe Your Symptoms</span>
+      </h2>
+      <p class="step-sub">
+        <span class="t-so">Su'aalaha hoose ka jawaab si saxda ah.</span>
+        <span class="t-en">Answer the questions below as accurately as possible.</span>
+      </p>
+      <div class="intake-form" id="intakeForm">
+        <div class="form-group">
+          <label class="form-label" for="bodyArea">
+            <span class="t-so">Mehelka Muruqyada</span>
+            <span class="t-en">Body Area</span>
+          </label>
+          <select id="bodyArea" class="form-select">
+            <option value="">-- Dooro / Select --</option>
+            <option value="head">Madaxa (Head)</option>
+            <option value="chest">Xabadka (Chest)</option>
+            <option value="abdomen">Caloosha (Abdomen)</option>
+            <option value="limbs">Gacmaha iyo Lugaha (Limbs)</option>
+            <option value="skin">Maqaarka (Skin)</option>
+            <option value="general">Guud ahaan (General)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <fieldset>
+            <legend class="form-label">
+              <span class="t-so">Calaamadaha (Dhawr dooro kartaa)</span>
+              <span class="t-en">Symptoms (Select all that apply)</span>
+            </legend>
+            <div class="check-grid" id="symptomsGrid">
+              <label class="check-item"><input type="checkbox" value="fever"> <span class="t-so">Qandho</span><span class="t-en">Fever</span></label>
+              <label class="check-item"><input type="checkbox" value="pain"> <span class="t-so">Xanuun</span><span class="t-en">Pain</span></label>
+              <label class="check-item"><input type="checkbox" value="cough"> <span class="t-so">Qufac</span><span class="t-en">Cough</span></label>
+              <label class="check-item"><input type="checkbox" value="fatigue"> <span class="t-so">Dabaggaalid</span><span class="t-en">Fatigue</span></label>
+              <label class="check-item"><input type="checkbox" value="breath"> <span class="t-so">Neefsiga</span><span class="t-en">Shortness of breath</span></label>
+              <label class="check-item"><input type="checkbox" value="vomiting"> <span class="t-so">Matag</span><span class="t-en">Vomiting</span></label>
+              <label class="check-item"><input type="checkbox" value="diarrhoea"> <span class="t-so">Geel-jire</span><span class="t-en">Diarrhoea</span></label>
+              <label class="check-item"><input type="checkbox" value="rash"> <span class="t-so">Harqaan</span><span class="t-en">Rash</span></label>
+              <label class="check-item"><input type="checkbox" value="dizziness"> <span class="t-so">Madaxyaraysi</span><span class="t-en">Dizziness</span></label>
+              <label class="check-item"><input type="checkbox" value="other"> <span class="t-so">Kale</span><span class="t-en">Other</span></label>
+            </div>
+          </fieldset>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="duration">
+              <span class="t-so">Mudada</span>
+              <span class="t-en">Duration</span>
+            </label>
+            <select id="duration" class="form-select">
+              <option value="">-- Dooro / Select --</option>
+              <option value="lt1day">Kasa yar 1 maalin (Less than 1 day)</option>
+              <option value="1to3">1 ilaa 3 maalmood (1–3 days)</option>
+              <option value="4to7">4 ilaa 7 maalmood (4–7 days)</option>
+              <option value="gt1wk">Ka badan 1 toddobaad (More than 1 week)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ageInput">
+              <span class="t-so">Da'da</span>
+              <span class="t-en">Age</span>
+            </label>
+            <input type="number" id="ageInput" class="form-input" min="1" max="120" placeholder="25">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="sexSelect">
+            <span class="t-so">Jinsiga</span>
+            <span class="t-en">Sex</span>
+          </label>
+          <select id="sexSelect" class="form-select">
+            <option value="">-- Dooro / Select --</option>
+            <option value="male">Lab (Male)</option>
+            <option value="female">Dhedig (Female)</option>
+            <option value="ns">Aan sheegi doonin (Prefer not to say)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="complaint">
+            <span class="t-so">Sheegtanka</span>
+            <span class="t-en">Presenting Complaint</span>
+          </label>
+          <textarea id="complaint" class="form-textarea" rows="3" placeholder="Maalintii hore... / Since yesterday..."></textarea>
+        </div>
+        <span class="form-error" id="intakeError" role="alert"></span>
+        <button class="btn btn-primary" id="submitCaseBtn">
+          <span class="t-so">Kiiska Dir</span>
+          <span class="t-en">Submit Case</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirmation -->
+    <div class="p-step" id="step3">
+      <div class="confirm-icon" aria-hidden="true">&#10003;</div>
+      <h2 class="step-title">
+        <span class="t-so">Kiiskaaga La Helay</span>
+        <span class="t-en">Case Received</span>
+      </h2>
+      <div class="confirm-box">
+        <div class="confirm-row">
+          <span class="confirm-label t-so">Lambarka Kiiska</span>
+          <span class="confirm-label t-en">Case Reference</span>
+          <span class="confirm-value" id="caseRef">TC-2026-0000</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label t-so">Xaalada</span>
+          <span class="confirm-label t-en">Status</span>
+          <span class="status-badge status-waiting">
+            <span class="t-so">Sugitaanka Dhakhtarka</span>
+            <span class="t-en">Awaiting Doctor</span>
+          </span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label t-so">Waqtiga Jawaabta</span>
+          <span class="confirm-label t-en">Estimated Response</span>
+          <span class="confirm-value">
+            <span class="t-so">24 saacadood gudahood</span>
+            <span class="t-en">Within 24 hours</span>
+          </span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label t-so">Dhakhtar</span>
+          <span class="confirm-label t-en">Assigned Doctor</span>
+          <span class="confirm-value">Dr. Amina Hassan — Cardiology</span>
+        </div>
+      </div>
+      <div id="responseReady" style="display:none;margin:1rem 0;padding:0.75rem 1rem;
+        background:#E8F5E9;border:1px solid #2E7D32;border-radius:4px;
+        color:#2E7D32;font-weight:600;">
+        Your doctor has responded. Click View Result below.
+      </div>
+
+      <div id="videoInvite" style="display:none;margin:1rem 0;padding:1rem;
+        background:#E3F2FD;border:1px solid #1565C0;border-radius:4px;">
+        <p style="font-weight:600;color:#1565C0;margin-bottom:0.5rem;">
+          Your doctor is requesting a video consultation.
+        </p>
+        <p style="font-size:0.9rem;color:#3D3D3D;margin-bottom:0.75rem;">
+          By joining you consent to a live video consultation.
+        </p>
+        <a id="videoJoinLink" href="#" target="_blank"
+          style="display:inline-block;padding:0.6rem 1.2rem;background:#1565C0;
+          color:#fff;border-radius:4px;font-weight:600;text-decoration:none;">
+          Join Video Call
+        </a>
+      </div>
+      <p class="confirm-note">
+        <span class="t-so">SMS ayaad ku heli doontaa marka jawaabta la helo.</span>
+        <span class="t-en">You will receive an SMS when your consultation is ready.</span>
+      </p>
+      <button class="btn btn-outline" id="viewResultBtn">
+        <span class="t-so">Natiijada Arag (Demo)</span>
+        <span class="t-en">View Result (Demo)</span>
+      </button>
+    </div>
+
+    <!-- Step 4: Consultation Result -->
+    <div class="p-step" id="step4">
+      <div class="result-header">
+        <h2 class="step-title">
+          <span class="t-so">Jawaabta Dhakhtarka</span>
+          <span class="t-en">Doctor's Response</span>
+        </h2>
+        <div class="result-meta">
+          <span class="t-so">Dr. Amina Hassan · Wadnahayga (Cardiology) · Toronto</span>
+          <span class="t-en">Dr. Amina Hassan · Cardiology · Toronto, Canada</span>
+        </div>
+      </div>
+      <div class="result-note-box">
+        <div class="result-note-label">
+          <span class="t-so">Xusuusin Dhakhtarka</span>
+          <span class="t-en">Clinical Note</span>
+        </div>
+        <p class="result-note-text">
+          <span class="t-so">Bukaanka wuxuu soo sheegay qandho, dabaggaalid iyo qufac ah oo socday 3 maalmood. Calaamadaha ayaa la xiriira caabuqa sare ee neefsiga. Daawada hoose la isticmaalo.</span>
+          <span class="t-en">Patient presents with fever, fatigue, and cough lasting 3 days. Symptoms consistent with upper respiratory tract infection. Medication prescribed below.</span>
+        </p>
+      </div>
+      <div class="result-diagnosis">
+        <span class="diag-label">
+          <span class="t-so">Baaritaanka</span>
+          <span class="t-en">Diagnosis</span>
+        </span>
+        <span class="diag-value">Upper Respiratory Infection — ICD-10: J06.9</span>
+      </div>
+      <div class="pathway-card" id="pathwayCard">
+        <div class="pathway-card-header">
+          <span class="pathway-type-badge">Rx</span>
+          <span class="pathway-type-label t-so">Dawooyin</span>
+          <span class="pathway-type-label t-en">Prescription</span>
+        </div>
+        <div class="pathway-detail-row">
+          <span class="pd-label t-so">Daawada</span><span class="pd-label t-en">Medication</span>
+          <span class="pd-value">Paracetamol 500mg</span>
+        </div>
+        <div class="pathway-detail-row">
+          <span class="pd-label t-so">Siinta</span><span class="pd-label t-en">Dosage &amp; Frequency</span>
+          <span class="pd-value">1 tablet — 3 times daily</span>
+        </div>
+        <div class="pathway-detail-row">
+          <span class="pd-label t-so">Mudada</span><span class="pd-label t-en">Duration</span>
+          <span class="pd-value">5 days</span>
+        </div>
+        <div class="pathway-detail-row">
+          <span class="pd-label t-so">Farmashiga</span><span class="pd-label t-en">Pharmacy</span>
+          <span class="pd-value">Isha Pharmacy — Mogadishu</span>
+        </div>
+        <div class="pathway-code-row">
+          <span class="pd-label t-so">Koodka Xaqiijinta</span><span class="pd-label t-en">Verification Code</span>
+          <span class="pathway-code">TC-PX-7823</span>
+        </div>
+        <p class="pathway-instruction">
+          <span class="t-so">Koodkaan farmashiga u keen. Farmashigu waxay xaqiijin doonaan.</span>
+          <span class="t-en">Present this code at the pharmacy. The pharmacist will verify it.</span>
+        </p>
+      </div>
+      <div class="followup-row">
+        <span class="t-so">Xiga:</span>
+        <span class="t-en">Follow-up:</span>
+        <span>7 days — return if symptoms worsen</span>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="js/db.js"></script>
+  <script src="js/patient.js"></script>
+</body>
+</html>
