@@ -1590,6 +1590,55 @@
   .admin-tabs .tab-btn { padding: 0.5rem 0.6rem; font-size: var(--t-xs); }
 }
 
+/* ── Afyameet powered-by footer ─────────────────────────── */
+.afyameet-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--bg);
+  border-top: 1px solid var(--rule);
+  z-index: 500;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--ink-3);
+  letter-spacing: 0.03em;
+}
+
+.afyameet-footer-logo {
+  height: 20px;
+  width: auto;
+  display: inline-block;
+  object-fit: contain;
+}
+
+.afyameet-footer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ink-3);
+  text-decoration: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius);
+  transition: color 0.15s var(--ease), background 0.15s var(--ease);
+}
+
+.afyameet-footer-link:hover {
+  color: var(--ink);
+  background: var(--surface);
+}
+
+/* Breathing room so content isn't hidden behind the fixed footer */
+.page-patient .p-main   { padding-bottom: calc(var(--s4) + 36px); }
+.page-admin .admin-main { padding-bottom: calc(var(--s3) + 36px); }
+.page-doctor .dr-main   { padding-bottom: calc(var(--s3) + 36px); }
+.page-doctor .dr-sidebar { padding-bottom: 36px; }
+
 /* ── MOBILE REFINEMENTS ─────────────────────────────────── */
 
 /* Sidebar backdrop — tapping outside closes nav on mobile */
@@ -1646,11 +1695,15 @@
 
 /* Safe-area insets — iPhone notch and home-indicator bar */
 @supports (padding: env(safe-area-inset-bottom)) {
+  .afyameet-footer {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(36px + env(safe-area-inset-bottom));
+  }
   .p-main {
-    padding-bottom: max(var(--s4), calc(env(safe-area-inset-bottom) + 1rem));
+    padding-bottom: max(calc(var(--s4) + 36px), calc(env(safe-area-inset-bottom) + 36px + 1rem));
   }
   .dr-main {
-    padding-bottom: max(var(--s3), calc(env(safe-area-inset-bottom) + 1rem));
+    padding-bottom: max(calc(var(--s3) + 36px), calc(env(safe-area-inset-bottom) + 36px + 1rem));
   }
   .p-header,
   .admin-header {
