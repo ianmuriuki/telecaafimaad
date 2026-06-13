@@ -3,37 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TeleCaafimaad — Doctor Interface</title>
+  <title>TeleCaafimaad · Doctor Interface</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/app.css">
-  <script>if(location.hostname==='127.0.0.1')location.replace(location.href.replace('//127.0.0.1','//localhost'));</script>
 </head>
 <body class="page-doctor">
 
+  <!-- Login Overlay -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <a href="index.html" class="login-back">&#8592; Back to home</a>
+      <div class="login-brand">
+        <span class="login-brand-tc">TeleCaafimaad</span>
+        <span class="login-brand-portal">Dhakhtar Maxalliga</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="loginId">Staff ID</label>
+        <input type="text" id="loginId" class="form-input" placeholder="e.g. DR-001" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" class="form-input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password">
+      </div>
+      <span id="loginError" class="form-error" role="alert" style="display:none"></span>
+      <button class="btn btn-primary btn-full" id="signInBtn">Sign In</button>
+      <p class="login-disclaimer">This portal is restricted to verified doctors registered with TeleCaafimaad. Unauthorized access is prohibited.</p>
+    </div>
+  </div>
+
+  <div id="mainInterface" style="display:none">
+
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
   <div class="dr-layout">
     <aside class="dr-sidebar">
+      <a href="index.html" class="page-back-nav page-back-nav--sidebar">&#8592; TeleCaafimaad</a>
       <div class="sidebar-brand">
         <a href="index.html" class="sidebar-logo">TC</a>
         <div class="sidebar-doctor-info">
-          <span class="sdi-name">Dr. Amina Hassan</span>
-          <span class="sdi-spec">Cardiology · Toronto</span>
+          <span class="sdi-name">Dr. Fadumo Warsame</span>
+          <span class="sdi-spec">General Practice · Banadir</span>
         </div>
       </div>
       <nav class="sidebar-nav" role="navigation">
         <button class="snav-item is-active" data-view="queue">
           Case Queue
-          <span class="badge" id="queueBadge">5</span>
+          <span class="badge" id="queueBadge">0</span>
         </button>
         <button class="snav-item" data-view="mycases">My Cases</button>
+        <button class="snav-item" data-view="refer">Refer to Specialist</button>
+        <button class="snav-item" data-view="records">Patient Records</button>
         <button class="snav-item" data-view="schedule">Schedule</button>
         <button class="snav-item" data-view="profile">Profile</button>
       </nav>
       <div class="sidebar-footer">
-        <span class="sidebar-status">
-          <span class="status-dot status-dot--active"></span>
-          Online
-        </span>
+        <span class="status-dot status-dot--active"></span>
+        <span style="color:var(--dark-ink-2);font-size:var(--t-xs)">Online · NHPC Verified</span>
+        <button class="btn btn-ghost btn-sm" id="signOutBtn" style="margin-top:var(--s1);width:100%">Sign Out</button>
       </div>
     </aside>
 
@@ -41,62 +67,55 @@
       <div class="dr-mobile-header">
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">&#9776;</button>
         <span class="mobile-view-title" id="mobileViewTitle">Case Queue</span>
-        <span class="badge" id="mobileQueueBadge">5</span>
+        <span class="badge" id="mobileQueueBadge">0</span>
       </div>
 
       <!-- View: Case Queue -->
-      <div class="dr-view" id="view-queue">
+      <div class="dr-view is-active" id="view-queue">
         <div class="view-header">
           <h1 class="view-title">Case Queue</h1>
-          <span class="view-meta" id="queueMeta">5 pending cases</span>
+          <span class="view-meta" id="queueMeta">Loading…</span>
         </div>
         <div class="case-list" id="caseList"></div>
-        <div class="empty-queue hidden" id="emptyQueue">
-          <p class="empty-msg">No pending cases. Queue is clear.</p>
-        </div>
+        <p class="empty-msg hidden" id="emptyQueue">No pending cases. Queue is clear.</p>
       </div>
 
       <!-- View: Case Detail -->
       <div class="dr-view" id="view-casedetail">
         <div class="view-header">
-          <button class="back-to-queue" id="backToQueue">&#8592; Back to Queue</button>
+          <button class="back-btn" id="backToQueue">&#8592; Back to Queue</button>
           <h1 class="view-title" id="detailCaseId">Case</h1>
         </div>
         <div class="case-detail-layout">
-          <div class="case-intake-panel">
+          <div>
             <h3 class="panel-label">Patient Intake</h3>
             <div class="intake-grid" id="intakeDisplay"></div>
+            <div id="patientRecordLink" style="margin-top:var(--s2)"></div>
           </div>
-          <div class="case-response-panel">
+          <div>
             <h3 class="panel-label">Clinical Response</h3>
-            <div class="video-call-panel" id="videoCallPanel" style="margin-bottom:1.5rem;
-              padding:1rem;border:1px solid #E0E0E0;border-radius:4px;background:#F5F5F5;">
-              <div style="font-size:0.75rem;font-weight:600;letter-spacing:0.08em;
-                text-transform:uppercase;color:#757575;margin-bottom:0.75rem;">
-                Video Consultation
-              </div>
+
+            <!-- Video call panel -->
+            <div class="video-panel">
+              <div class="video-panel-label">Video Consultation</div>
+              <div class="video-tz-note" id="videoTzInfo">Patient is in Mogadishu · UTC+3 (EAT)</div>
               <div id="videoCallIdle">
-                <p style="font-size:0.9rem;color:#3D3D3D;margin-bottom:0.75rem;">
-                  If this case requires a live video consultation, send the patient
-                  a video call request. They must consent before the call begins.
+                <p style="font-size:var(--t-sm);color:var(--ink-2);margin-bottom:0.75rem">
+                  If this case requires a live video consultation, send the patient a request. They must consent before the call begins.
                 </p>
-                <button class="btn btn-outline" id="initiateVideoBtn">
-                  Request Video Call
-                </button>
+                <button class="btn btn-outline btn-sm" id="initiateVideoBtn">Request Video Call</button>
               </div>
-              <div id="videoCallPending" style="display:none;">
-                <p style="font-size:0.9rem;color:#E65100;font-weight:600;margin-bottom:0.75rem;">
-                  Waiting for patient to accept...
+              <div id="videoCallPending" style="display:none">
+                <p style="font-size:var(--t-sm);color:var(--amber);font-weight:600;margin-bottom:0.75rem">
+                  Video call requested · awaiting patient acceptance
                 </p>
-                <a id="doctorJoinLink" href="#" target="_blank"
-                  class="btn btn-primary" style="margin-bottom:0.5rem;">
+                <a id="doctorJoinLink" href="#" target="_blank" class="btn btn-primary btn-sm" style="margin-bottom:0.5rem">
                   Join Call Now
                 </a>
-                <button class="btn btn-outline" id="cancelVideoBtn" style="margin-left:0.5rem;">
-                  Cancel Request
-                </button>
+                <button class="btn btn-outline btn-sm" id="cancelVideoBtn" style="margin-left:0.5rem">Cancel Request</button>
               </div>
             </div>
+
             <div class="form-group">
               <label class="form-label" for="diagInput">Diagnosis</label>
               <input type="text" id="diagInput" class="form-input" placeholder="ICD-10 description or free text">
@@ -104,7 +123,7 @@
             <div class="form-group">
               <label class="form-label" for="pathwaySelect">Pathway</label>
               <select id="pathwaySelect" class="form-select">
-                <option value="">— Select pathway —</option>
+                <option value="">Select pathway</option>
                 <option value="prescription">Prescription</option>
                 <option value="lab">Lab Order</option>
                 <option value="referral">Referral</option>
@@ -115,10 +134,13 @@
             <div id="pathwayFields"></div>
             <div class="form-group">
               <label class="form-label" for="clinicalNotes">Clinical Notes</label>
-              <textarea id="clinicalNotes" class="form-textarea" rows="4" placeholder="Clinical observations and instructions for the patient..."></textarea>
+              <textarea id="clinicalNotes" class="form-textarea" rows="4" placeholder="Clinical observations and instructions for the patient…"></textarea>
             </div>
             <span class="form-error" id="responseError" role="alert"></span>
-            <button class="btn btn-primary btn-wide" id="submitResponseBtn">Close Case &amp; Submit</button>
+            <div style="display:flex;gap:var(--s1);flex-wrap:wrap">
+              <button class="btn btn-outline" id="requestSpecialistBtn">Request Specialist Input</button>
+              <button class="btn btn-primary" id="submitResponseBtn" style="flex:1">Close Case &amp; Submit</button>
+            </div>
           </div>
         </div>
       </div>
@@ -130,30 +152,169 @@
           <span class="view-meta">Closed consultations</span>
         </div>
         <div class="closed-case-list" id="myCasesList"></div>
+        <p class="empty-msg hidden" id="emptyMyCases">No closed cases yet.</p>
+      </div>
+
+      <!-- View: Refer to Specialist -->
+      <div class="dr-view" id="view-refer">
+        <div class="view-header">
+          <h1 class="view-title">Refer to Specialist</h1>
+        </div>
+
+        <!-- Toggle: New Referral / History -->
+        <div class="refer-toggle">
+          <button class="refer-tab is-active" id="refTabNew">New Referral</button>
+          <button class="refer-tab" id="refTabHistory">Referral History</button>
+        </div>
+
+        <!-- New Referral panel -->
+        <div id="refer-new-panel">
+          <div style="display:grid;grid-template-columns:280px 1fr;gap:var(--s4);align-items:start;margin-top:var(--s3)">
+            <div>
+              <h3 class="panel-label">Filter Specialists</h3>
+              <div class="form-group">
+                <label class="form-label" for="spFilterSpec">Specialty</label>
+                <select id="spFilterSpec" class="form-select">
+                  <option value="">All specialties</option>
+                  <option value="Cardiology">Cardiology</option>
+                  <option value="Obstetrics">Obstetrics</option>
+                  <option value="Neurology">Neurology</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="spFilterLang">Language</label>
+                <select id="spFilterLang" class="form-select">
+                  <option value="">All languages</option>
+                  <option value="Somali">Somali</option>
+                  <option value="English">English</option>
+                  <option value="Arabic">Arabic</option>
+                  <option value="Norwegian">Norwegian</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <h3 class="panel-label">Available Specialists</h3>
+              <div id="specialistList"></div>
+            </div>
+          </div>
+
+          <!-- Referral form (hidden until specialist selected) -->
+          <div id="referralFormBlock" class="hidden" style="margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--rule);max-width:600px">
+            <h3 class="panel-label">Referral Details</h3>
+            <div class="form-group">
+              <label class="form-label" for="ref-patient">Patient</label>
+              <select id="ref-patient" class="form-select">
+                <option value="">Select patient</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ref-reason">Reason for Referral</label>
+              <input type="text" id="ref-reason" class="form-input" placeholder="Brief reason for specialist consultation">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="ref-urgency">Urgency</label>
+                <select id="ref-urgency" class="form-select">
+                  <option value="Routine">Routine</option>
+                  <option value="Urgent">Urgent</option>
+                  <option value="Emergency">Emergency</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ref-mode">Preferred Mode</label>
+                <select id="ref-mode" class="form-select">
+                  <option value="async">Async Review</option>
+                  <option value="video">Video Call</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ref-summary">Clinical Summary</label>
+              <textarea id="ref-summary" class="form-textarea" rows="4" placeholder="Relevant clinical details for the specialist…"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Attach Documents</label>
+              <div id="ref-docs-list"></div>
+              <div class="upload-zone" id="uploadZone" style="margin-top:var(--s1)">
+                <input type="file" id="uploadInput" accept=".pdf,.jpg,.png,.doc,.docx" multiple style="display:none">
+                <p style="margin:0;font-size:var(--t-sm)">Click to select files or drag and drop</p>
+                <p style="margin:0.25rem 0 0;font-size:var(--t-xs);color:var(--ink-3)">.pdf .jpg .png .doc accepted</p>
+              </div>
+              <div id="uploadFileList"></div>
+            </div>
+            <span class="form-error" id="referralError"></span>
+            <button class="btn btn-primary" id="submitReferralBtn">Submit Referral</button>
+          </div>
+        </div>
+
+        <!-- Referral History panel -->
+        <div id="refer-history-panel" class="hidden" style="margin-top:var(--s3)">
+          <div class="table-wrap">
+            <table class="data-table" aria-label="Referral history">
+              <thead>
+                <tr>
+                  <th>Ref ID</th>
+                  <th>Patient</th>
+                  <th>Specialist</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Outcome</th>
+                </tr>
+              </thead>
+              <tbody id="refHistoryBody"></tbody>
+            </table>
+          </div>
+          <p class="empty-msg hidden" id="emptyRefHistory">No referrals submitted yet.</p>
+        </div>
+      </div>
+
+      <!-- View: Patient Records -->
+      <div class="dr-view" id="view-records">
+        <div class="view-header">
+          <h1 class="view-title">Patient Records</h1>
+          <span class="view-meta">Uploaded medical documents</span>
+        </div>
+        <div class="search-bar" style="margin-bottom:var(--s3);max-width:400px">
+          <input type="search" class="search-input" id="recSearchInput" placeholder="Search patient by name or ID…">
+          <button class="btn btn-outline btn-sm" id="recSearchBtn">Search</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" aria-label="Patient documents">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Filename</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Uploaded by</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="recTableBody"></tbody>
+          </table>
+        </div>
+        <p class="empty-msg hidden" id="emptyRec">No documents found.</p>
       </div>
 
       <!-- View: Schedule -->
       <div class="dr-view" id="view-schedule">
         <div class="view-header">
           <h1 class="view-title">Availability</h1>
-          <span class="view-meta">Click slots to mark availability. Saved automatically. UTC times.</span>
+          <span class="view-meta">Click slots to mark availability. Saved automatically.</span>
         </div>
-        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:var(--s2);margin-bottom:var(--s2);flex-wrap:wrap">
           <div>
-            <label style="font-size:0.75rem;font-weight:600;text-transform:uppercase;
-              letter-spacing:0.06em;color:#757575;display:block;margin-bottom:0.3rem;">
-              Your Timezone
-            </label>
-            <select id="tzSelect" class="form-select" style="width:auto;min-width:220px;"></select>
+            <label style="font-size:var(--t-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-3);display:block;margin-bottom:0.3rem">Your Timezone</label>
+            <select id="tzSelect" class="form-select" style="width:auto;min-width:220px"></select>
           </div>
-          <p id="patientTzNote" style="font-size:0.85rem;color:#757575;margin:0;padding-top:1.2rem;">
-            Patients in Somalia are UTC+3 (EAT).
+          <p style="font-size:var(--t-xs);color:var(--ink-3);margin:0;padding-top:1.2rem">
+            Patients and facility workers see your slots in EAT (UTC+3)
           </p>
         </div>
         <div class="schedule-grid-wrap">
           <div class="schedule-grid" id="scheduleGrid"></div>
         </div>
-        <p class="schedule-note">Availability is shared with patients during case matching.</p>
+        <p class="schedule-note">Availability is shared with facility workers during consultation booking.</p>
       </div>
 
       <!-- View: Profile -->
@@ -165,20 +326,22 @@
           <div class="profile-section">
             <h3 class="panel-label">Doctor Information</h3>
             <div class="profile-grid">
-              <div class="profile-row"><span class="pr-label">Full name</span><span class="pr-value">Dr. Amina Hassan</span></div>
-              <div class="profile-row"><span class="pr-label">Specialty</span><span class="pr-value">Cardiology</span></div>
-              <div class="profile-row"><span class="pr-label">Location</span><span class="pr-value">Toronto, Canada</span></div>
-              <div class="profile-row"><span class="pr-label">NHPC Status</span><span class="status-badge status-active">Verified</span></div>
-              <div class="profile-row"><span class="pr-label">Cases closed</span><span class="pr-value" id="profileCaseCount">47</span></div>
-              <div class="profile-row"><span class="pr-label">Joined</span><span class="pr-value">February 2026</span></div>
+              <div class="profile-row"><span class="pr-label">Full name</span><span class="pr-value">Dr. Fadumo Warsame</span></div>
+              <div class="profile-row"><span class="pr-label">Specialty</span><span class="pr-value">General Practice</span></div>
+              <div class="profile-row"><span class="pr-label">Facility</span><span class="pr-value">Banadir Regional Hospital</span></div>
+              <div class="profile-row"><span class="pr-label">District</span><span class="pr-value">Banadir</span></div>
+              <div class="profile-row"><span class="pr-label">NHPC Status</span><span class="pr-value"><span class="status-badge status-active">Verified</span></span></div>
+              <div class="profile-row"><span class="pr-label">Cases closed</span><span class="pr-value" id="profileCaseCount">—</span></div>
+              <div class="profile-row"><span class="pr-label">License</span><span class="pr-value">NHPC-SO-0012</span></div>
+              <div class="profile-row"><span class="pr-label">Joined</span><span class="pr-value">January 2026</span></div>
             </div>
           </div>
           <div class="profile-section">
-            <h3 class="panel-label">NHPC Verification Checklist</h3>
+            <h3 class="panel-label">NHPC Verification</h3>
             <ul class="nhpc-list">
-              <li class="nhpc-item nhpc-done">Medical degree — University of Mogadishu</li>
+              <li class="nhpc-item nhpc-done">Medical degree · University of Mogadishu</li>
               <li class="nhpc-item nhpc-done">Postgraduate specialist certificate</li>
-              <li class="nhpc-item nhpc-done">Current license — College of Physicians &amp; Surgeons Ontario</li>
+              <li class="nhpc-item nhpc-done">Current license · NHPC Somalia</li>
               <li class="nhpc-item nhpc-done">Good standing declaration signed</li>
               <li class="nhpc-item nhpc-done">Identity verified against NHPC register</li>
               <li class="nhpc-item nhpc-done">Terms of participation accepted</li>
@@ -190,8 +353,30 @@
     </main>
   </div>
 
-  <script src="js/db.js"></script>
-  <script src="js/doctor.js"></script>
+  <!-- Slideover: Patient full record -->
+  <div class="slideover-overlay" id="patientRecordOverlay"></div>
+  <div class="slideover" id="patientRecordSlideover">
+    <div class="slideover-header">
+      <span class="slideover-title" id="recordSlideoverName">Patient Record</span>
+      <button class="slideover-close" id="closeRecordSlideover">&times;</button>
+    </div>
+    <div class="slideover-body" id="recordSlideoverBody"></div>
+  </div>
+
+  <!-- Referral Confirmation Modal -->
+  <div id="refConfirmModal" class="modal-overlay">
+    <div class="modal-card" style="max-width:520px;text-align:center">
+      <div class="ref-confirm-check">&#10003;</div>
+      <h2 class="view-title" style="margin-bottom:var(--s1)">Referral Submitted</h2>
+      <div class="ref-confirm-id" id="refConfirmId"></div>
+      <div class="detail-grid" id="refConfirmDetails" style="margin:var(--s3) 0;text-align:left"></div>
+      <p style="font-size:var(--t-sm);color:var(--ink-3);margin-bottom:var(--s3)">The specialist will be notified. You will receive a response within 48 hours. This referral has been logged to the patient record.</p>
+      <div style="display:flex;gap:var(--s2);justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-outline" id="refConfirmHistoryBtn">View Referral Record</button>
+        <button class="btn btn-primary" id="refConfirmQueueBtn">Back to Case Queue</button>
+      </div>
+    </div>
+  </div>
 
   <footer class="afyameet-footer">
     <a href="https://afyameet.com" target="_blank" rel="noopener noreferrer" class="afyameet-footer-link">
@@ -199,5 +384,10 @@
       <span>Powered by Afyameet</span>
     </a>
   </footer>
+
+  </div><!-- end mainInterface -->
+
+  <script src="js/db.js"></script>
+  <script src="js/doctor.js"></script>
 </body>
 </html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeleCaafimaad · Donate</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="page-donor">
+
+  <header class="donor-header">
+    <a href="index.html" class="donor-back">&#8592; TeleCaafimaad</a>
+  </header>
+
+  <main class="donor-main">
+
+    <div class="donor-hero">
+      <h1 class="donor-hero-title">Support Somalia's<br>Digital Health Infrastructure</h1>
+      <p class="donor-hero-sub">Every contribution directly funds consultations for patients who would otherwise have no access to a doctor. TeleCaafimaad is a non-commercial pilot. 100% of donations go to platform operations and clinical staff.</p>
+    </div>
+
+    <div class="donor-body">
+
+      <!-- Giving tiers -->
+      <section class="donor-section">
+        <h2 class="donor-section-title">Giving Tiers</h2>
+        <div class="tier-list">
+          <div class="tier-item">
+            <div class="tier-amount">$25</div>
+            <div class="tier-name">Single Consultation</div>
+            <p class="tier-desc">Covers one full teleconsultation: intake, clinical review, prescription and DHIS2 reporting, for one patient at a Banadir facility.</p>
+          </div>
+          <div class="tier-item">
+            <div class="tier-amount">$100</div>
+            <div class="tier-name">Facility Month</div>
+            <p class="tier-desc">Keeps a single health facility connected to TeleCaafimaad for one month, including bandwidth, SMS and platform costs.</p>
+          </div>
+          <div class="tier-item">
+            <div class="tier-amount">$500</div>
+            <div class="tier-name">Pilot Supporter</div>
+            <p class="tier-desc">Sponsors a specialist slot for three months: a diaspora physician committing to respond to referrals from Somali local doctors.</p>
+          </div>
+          <div class="tier-item">
+            <div class="tier-amount">$2,500</div>
+            <div class="tier-name">District Partner</div>
+            <p class="tier-desc">Extends the pilot to one new district outside Banadir: facility onboarding, doctor training, and six months of full operations.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Donation form -->
+      <section class="donor-section donor-form-section">
+        <h2 class="donor-section-title">Make a Donation</h2>
+        <div id="donationFormWrap">
+          <div class="form-group">
+            <label class="form-label">Amount (USD)</label>
+            <div class="amount-btn-row">
+              <button class="amount-btn is-active" data-amount="25">$25</button>
+              <button class="amount-btn" data-amount="100">$100</button>
+              <button class="amount-btn" data-amount="500">$500</button>
+              <button class="amount-btn" data-amount="2500">$2,500</button>
+              <button class="amount-btn" data-amount="custom">Other</button>
+            </div>
+            <input type="number" id="customAmountInput" class="form-input hidden" placeholder="Enter amount in USD" min="1" style="margin-top:0.5rem;max-width:220px">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="donorName">Your name (optional)</label>
+            <input type="text" id="donorName" class="form-input" placeholder="Anonymous" style="max-width:360px">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Payment method</label>
+            <div class="pay-method-grid">
+              <label class="pay-method-item">
+                <input type="radio" name="payMethod" value="EVC Plus" checked>
+                <span class="pay-method-label">EVC Plus</span>
+                <span class="pay-method-sub">Hormuud Telesom</span>
+              </label>
+              <label class="pay-method-item">
+                <input type="radio" name="payMethod" value="ZAAD">
+                <span class="pay-method-label">ZAAD</span>
+                <span class="pay-method-sub">Telesom Savings</span>
+              </label>
+              <label class="pay-method-item">
+                <input type="radio" name="payMethod" value="Sahal">
+                <span class="pay-method-label">Sahal</span>
+                <span class="pay-method-sub">Golis Telecom</span>
+              </label>
+              <label class="pay-method-item">
+                <input type="radio" name="payMethod" value="International Card">
+                <span class="pay-method-label">Int'l Card</span>
+                <span class="pay-method-sub">Visa / Mastercard</span>
+              </label>
+            </div>
+          </div>
+
+          <span class="form-error" id="donateError" role="alert"></span>
+          <button class="btn btn-primary pay-btn" id="payBtn">Donate Now</button>
+          <p class="donor-disclaimer">This is a demonstration pilot. No real payment is processed. Submitted amounts are recorded in the demo database only.</p>
+        </div>
+
+        <div id="donationSuccess" class="donation-success hidden">
+          <div class="ds-icon">&#10003;</div>
+          <h3 class="ds-title">Thank you for your support</h3>
+          <p class="ds-msg" id="dsMsg"></p>
+          <a href="index.html" class="btn btn-outline" style="margin-top:var(--s3)">Back to Home</a>
+        </div>
+      </section>
+
+      <!-- Impact statement -->
+      <section class="donor-section">
+        <h2 class="donor-section-title">Where Your Money Goes</h2>
+        <div class="impact-grid">
+          <div class="impact-item">
+            <div class="impact-pct">60%</div>
+            <div class="impact-label">Clinical operations · doctor stipends, specialist honoraria, training</div>
+          </div>
+          <div class="impact-item">
+            <div class="impact-pct">25%</div>
+            <div class="impact-label">Platform and connectivity · server costs, SMS, bandwidth for rural facilities</div>
+          </div>
+          <div class="impact-item">
+            <div class="impact-pct">15%</div>
+            <div class="impact-label">Programme management · monitoring, evaluation, DHIS2 reporting and compliance</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="js/db.js"></script>
+  <script>
+  (function(){
+    DB.init();
+    var selectedAmount = 25;
+    var TIERS = { 25:'Single Consultation', 100:'Facility Month', 500:'Pilot Supporter', 2500:'District Partner' };
+
+    document.querySelectorAll('.amount-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('.amount-btn').forEach(function(b){ b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        var val = btn.getAttribute('data-amount');
+        var cInput = document.getElementById('customAmountInput');
+        if(val==='custom'){
+          cInput.classList.remove('hidden');
+          selectedAmount = null;
+        } else {
+          cInput.classList.add('hidden');
+          selectedAmount = parseInt(val);
+        }
+      });
+    });
+
+    document.getElementById('payBtn').addEventListener('click', function(){
+      var errEl = document.getElementById('donateError');
+      errEl.textContent = '';
+
+      var customEl = document.getElementById('customAmountInput');
+      if(!customEl.classList.contains('hidden')){
+        selectedAmount = parseInt(customEl.value) || 0;
+      }
+      if(!selectedAmount || selectedAmount < 1){
+        errEl.textContent = 'Please enter a valid donation amount.';
+        return;
+      }
+      var method = (document.querySelector('input[name="payMethod"]:checked')||{}).value || 'EVC Plus';
+      var name   = document.getElementById('donorName').value.trim() || 'Anonymous';
+      var tier   = TIERS[selectedAmount] || 'Custom';
+
+      DB.addDonation({
+        id: 'DON-'+Date.now(),
+        ts: new Date().toISOString(),
+        donor_name: name,
+        amount: selectedAmount,
+        method: method,
+        tier: tier,
+        currency: 'USD'
+      });
+
+      document.getElementById('donationFormWrap').classList.add('hidden');
+      var successEl = document.getElementById('donationSuccess');
+      successEl.classList.remove('hidden');
+      document.getElementById('dsMsg').textContent =
+        '$'+selectedAmount.toLocaleString()+' donated via '+method+'. '+
+        'Your contribution will help fund '+tier.toLowerCase()+' for Somalia\'s digital health infrastructure.';
+    });
+  })();
+  </script>
+
+  <footer class="afyameet-footer">
+    <a href="https://afyameet.com" target="_blank" rel="noopener noreferrer" class="afyameet-footer-link">
+      <img src="public/afyameet.png" alt="Afyameet" class="afyameet-footer-logo">
+      <span>Powered by Afyameet</span>
+    </a>
+  </footer>
+</body>
+</html>

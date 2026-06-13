@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeleCaafimaad · Specialist Interface</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="page-specialist">
+
+  <!-- Login Overlay -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <a href="index.html" class="login-back">&#8592; Back to home</a>
+      <div class="login-brand">
+        <span class="login-brand-tc">TeleCaafimaad</span>
+        <span class="login-brand-portal">Takhasuska Diaspora</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="loginId">Staff ID</label>
+        <input type="text" id="loginId" class="form-input" placeholder="e.g. SP-001" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" class="form-input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password">
+      </div>
+      <span id="loginError" class="form-error" role="alert" style="display:none"></span>
+      <button class="btn btn-primary btn-full" id="signInBtn">Sign In</button>
+      <p class="login-disclaimer">This portal is restricted to verified diaspora specialists registered with TeleCaafimaad. Unauthorized access is prohibited.</p>
+    </div>
+  </div>
+
+  <div id="mainInterface" style="display:none">
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="sp-layout">
+      <aside class="sp-sidebar">
+        <a href="index.html" class="page-back-nav page-back-nav--sidebar">&#8592; TeleCaafimaad</a>
+        <div class="sidebar-brand">
+          <a href="index.html" class="sidebar-logo">TC</a>
+          <div class="sidebar-doctor-info">
+            <span class="sdi-name" id="spName">Dr. Amina Hassan</span>
+            <span class="sdi-spec" id="spSpec">Cardiology · Toronto</span>
+          </div>
+        </div>
+        <nav class="sidebar-nav" role="navigation">
+          <button class="snav-item is-active" data-view="queue">
+            Referral Queue
+            <span class="badge" id="queueBadge">0</span>
+          </button>
+          <button class="snav-item" data-view="active">Active Cases</button>
+          <button class="snav-item" data-view="video">Video Calls</button>
+          <button class="snav-item" data-view="profile">Profile</button>
+        </nav>
+        <div class="sidebar-footer">
+          <label class="online-toggle-label">
+            <input type="checkbox" id="onlineToggle" checked>
+            <span class="status-dot status-dot--active"></span>
+            <span style="color:var(--dark-ink-2);font-size:var(--t-xs)" id="onlineLabel">Online</span>
+          </label>
+          <button class="btn btn-ghost btn-sm" id="signOutBtn" style="margin-top:var(--s1);width:100%">Sign Out</button>
+        </div>
+      </aside>
+
+      <main class="sp-main">
+        <div class="dr-mobile-header">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">&#9776;</button>
+          <span class="mobile-view-title" id="mobileViewTitle">Referral Queue</span>
+          <span class="badge" id="mobileQueueBadge">0</span>
+        </div>
+
+        <!-- View: Referral Queue -->
+        <div class="sp-view is-active" id="view-queue">
+          <div class="view-header">
+            <h1 class="view-title">Referral Queue</h1>
+            <span class="view-meta" id="queueMeta">Loading…</span>
+          </div>
+          <div id="referralQueue"></div>
+          <p class="empty-msg hidden" id="emptyQueue">No pending referrals in your queue.</p>
+        </div>
+
+        <!-- View: Case Review (opened from queue) -->
+        <div class="sp-view" id="view-casedetail">
+          <div class="view-header">
+            <button class="back-btn" id="backToQueue">&#8592; Back to Queue</button>
+            <h1 class="view-title" id="detailRefId">Referral</h1>
+          </div>
+          <div class="case-review-layout">
+            <!-- Left: intake -->
+            <div class="cr-intake">
+              <h3 class="panel-label">Referral Details</h3>
+              <div class="intake-grid" id="refIntakeDisplay"></div>
+
+              <h3 class="panel-label" style="margin-top:var(--s3)">Clinical Summary</h3>
+              <div class="clinical-summary-block" id="clinicalSummaryBlock"></div>
+
+              <h3 class="panel-label" style="margin-top:var(--s3)">Attached Documents</h3>
+              <div id="attachedDocsList"></div>
+
+              <!-- Video panel (shown only if video mode) -->
+              <div class="video-panel" id="videoPanel" style="display:none">
+                <div class="video-panel-label">Video Consultation</div>
+                <div class="video-tz-note" id="spVideoTzNote">Referring facility is in Mogadishu · UTC+3 (EAT)</div>
+                <div id="videoCallState">
+                  <p style="font-size:var(--t-sm);color:var(--ink-2);margin-bottom:0.75rem">
+                    A video call has been requested for this referral.
+                  </p>
+                  <a id="spJoinLink" href="#" target="_blank" class="btn btn-primary btn-sm">Join Video Call</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: response -->
+            <div class="cr-response">
+              <h3 class="panel-label">Specialist Response</h3>
+              <div class="form-group">
+                <label class="form-label" for="spAssessment">Clinical Assessment</label>
+                <textarea id="spAssessment" class="form-textarea" rows="4" placeholder="Your clinical assessment based on the referral details…"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="spRecommendation">Recommendation</label>
+                <select id="spRecommendation" class="form-select">
+                  <option value="">Select recommendation</option>
+                  <option value="Proceed with current plan">Proceed with current plan</option>
+                  <option value="Adjust treatment protocol">Adjust treatment protocol</option>
+                  <option value="Further investigations needed">Further investigations needed</option>
+                  <option value="Urgent in-person referral">Urgent in-person referral</option>
+                  <option value="Emergency escalation">Emergency escalation</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="spInstructions">Instructions for Local Doctor</label>
+                <textarea id="spInstructions" class="form-textarea" rows="4" placeholder="Specific instructions for the referring doctor…"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="spFollowUp">Follow-up</label>
+                <select id="spFollowUp" class="form-select">
+                  <option value="No follow-up needed">No follow-up needed</option>
+                  <option value="1 week follow-up">1 week follow-up</option>
+                  <option value="2 week follow-up">2 week follow-up</option>
+                  <option value="Monthly follow-up">Monthly follow-up</option>
+                  <option value="As needed">As needed</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-check">
+                  <input type="checkbox" id="spRequestVideo">
+                  Request video call with local doctor
+                </label>
+              </div>
+              <span class="form-error" id="responseError" role="alert"></span>
+              <button class="btn btn-primary btn-full" id="submitResponseBtn">Submit Specialist Response</button>
+              <div id="submitSuccess" class="info-banner info-banner--green hidden" style="margin-top:var(--s2)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View: Active Cases -->
+        <div class="sp-view" id="view-active">
+          <div class="view-header">
+            <h1 class="view-title">Active Cases</h1>
+            <span class="view-meta">Cases where a response has been submitted</span>
+          </div>
+          <div id="activeCasesList"></div>
+          <p class="empty-msg hidden" id="emptyActive">No responded cases yet.</p>
+        </div>
+
+        <!-- View: Video Calls -->
+        <div class="sp-view" id="view-video">
+          <div class="view-header">
+            <h1 class="view-title">Video Calls</h1>
+            <span class="view-meta">Referrals with a video consultation component</span>
+          </div>
+          <div id="videoCallsList"></div>
+          <p class="empty-msg hidden" id="emptyVideo">No video calls scheduled.</p>
+        </div>
+
+        <!-- View: Profile -->
+        <div class="sp-view" id="view-profile">
+          <div class="view-header">
+            <h1 class="view-title">Profile</h1>
+          </div>
+          <div class="profile-layout">
+            <div class="profile-section">
+              <h3 class="panel-label">Specialist Information</h3>
+              <div class="profile-grid" id="profileGrid"></div>
+            </div>
+            <div class="profile-section">
+              <h3 class="panel-label">Verification Status</h3>
+              <ul class="nhpc-list" id="verificationList">
+                <li class="nhpc-item nhpc-done">Medical degree verified</li>
+                <li class="nhpc-item nhpc-done">Specialist certificate on file</li>
+                <li class="nhpc-item nhpc-done">Current license · host country</li>
+                <li class="nhpc-item nhpc-done">Good standing declaration signed</li>
+                <li class="nhpc-item nhpc-done">Identity verified against NHPC diaspora register</li>
+                <li class="nhpc-item nhpc-done">Terms of participation accepted</li>
+              </ul>
+            </div>
+            <div class="profile-section">
+              <h3 class="panel-label">Activity</h3>
+              <div class="profile-grid">
+                <div class="profile-row"><span class="pr-label">Referrals responded</span><span class="pr-value" id="profRespondedCount">—</span></div>
+                <div class="profile-row"><span class="pr-label">Pending referrals</span><span class="pr-value" id="profPendingCount">—</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <footer class="afyameet-footer">
+      <a href="https://afyameet.com" target="_blank" rel="noopener noreferrer" class="afyameet-footer-link">
+        <img src="public/afyameet.png" alt="Afyameet" class="afyameet-footer-logo">
+        <span>Powered by Afyameet</span>
+      </a>
+    </footer>
+
+  </div><!-- end mainInterface -->
+
+  <script src="js/db.js"></script>
+  <script src="js/specialist.js"></script>
+</body>
+</html>

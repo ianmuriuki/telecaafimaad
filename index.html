@@ -6,44 +6,149 @@
   <title>TeleCaafimaad</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/app.css">
-  <script>if(location.hostname==='127.0.0.1')location.replace(location.href.replace('//127.0.0.1','//localhost'));</script>
 </head>
 <body class="page-index">
-  <main class="index-wrap">
-    <div class="index-brand">
-      <div class="brand-mark">TC</div>
-      <h1 class="brand-name">TeleCaafimaad</h1>
-      <p class="brand-sub">Caafimaadka Guriga Keen &nbsp;·&nbsp; Bringing Health Home</p>
+
+  <!-- HERO SECTION -->
+  <section class="idx-hero">
+    <div class="idx-hero-content">
+      <h1 class="idx-hero-title">TeleCaafimaad</h1>
+      <p class="idx-hero-tagline">Somalia's Digital Health Infrastructure</p>
+      <p class="idx-hero-powered">Powered by AfyaMeet Limited</p>
+      <p class="idx-hero-so">Caafimaad Guriga</p>
+      <p class="idx-hero-desc">A facility-mediated telemedicine platform connecting Somali patients with verified local and diaspora physicians.</p>
     </div>
-    <nav class="role-grid" aria-label="Select your role">
-      <a href="patient.html" class="role-card">
-        <span class="role-num">01</span>
-        <span class="role-so">Bukaanka</span>
-        <span class="role-en">Patient</span>
-        <span class="role-desc">Anonymous consultation in Somali</span>
-      </a>
-      <a href="doctor.html" class="role-card">
-        <span class="role-num">02</span>
-        <span class="role-so">Dhakhtar</span>
-        <span class="role-en">Doctor</span>
-        <span class="role-desc">Diaspora physician interface</span>
-      </a>
-      <a href="admin.html" class="role-card">
-        <span class="role-num">03</span>
-        <span class="role-so">Maamulka</span>
-        <span class="role-en">Administration</span>
-        <span class="role-desc">Reporting and DHIS2 oversight</span>
-      </a>
-    </nav>
-    <footer class="index-footer">
-      <span>AfyaMeet Limited</span>
-      <span class="footer-sep">·</span>
-      <span>Pilot — Banadir District</span>
-      <span class="footer-sep">·</span>
-      <span>2026</span>
-    </footer>
-  </main>
+    <div class="idx-scroll-indicator">Explore the platform ↓</div>
+  </section>
+
+  <!-- 01 FACILITY WORKER -->
+  <section class="idx-portal idx-portal--white">
+    <div class="idx-portal-inner">
+      <div class="idx-portal-left">
+        <span class="idx-portal-num">01</span>
+        <h2 class="idx-portal-so">Shaqaalaha Xarunta</h2>
+        <p class="idx-portal-en">Facility Worker</p>
+        <div class="idx-portal-desc">
+          <p>Health facilities are the first point of contact between patients and the TeleCaafimaad platform. Trained facility workers register patients, initiate consultations on their behalf, upload medical records, and manage referrals.</p>
+          <p>This interface is designed for staff at public health units, regional hospitals, and NGO-supported facilities across Somalia's pilot districts.</p>
+        </div>
+      </div>
+      <div class="idx-portal-right">
+        <a href="facility.html" class="btn btn-primary idx-portal-btn">Enter Facility Worker</a>
+        <p class="idx-portal-cred">Demo login — ID: FW-001 · Password: facility2026</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 LOCAL DOCTOR -->
+  <section class="idx-portal idx-portal--surface">
+    <div class="idx-portal-inner">
+      <div class="idx-portal-left">
+        <span class="idx-portal-num">02</span>
+        <h2 class="idx-portal-so">Dhakhtar Maxalliga</h2>
+        <p class="idx-portal-en">Local Doctor</p>
+        <div class="idx-portal-desc">
+          <p>Local physicians at onboarded facilities use this portal to manage their patient case queue, respond to consultations, request specialist input on complex cases, and issue structured referrals.</p>
+          <p>Doctors can initiate video consultations and attach clinical documents when referring patients to diaspora or urban specialists.</p>
+        </div>
+      </div>
+      <div class="idx-portal-right">
+        <a href="doctor.html" class="btn btn-primary idx-portal-btn">Enter Local Doctor</a>
+        <p class="idx-portal-cred">Demo login — ID: DR-001 · Password: doctor2026</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 DIASPORA SPECIALIST -->
+  <section class="idx-portal idx-portal--white">
+    <div class="idx-portal-inner">
+      <div class="idx-portal-left">
+        <span class="idx-portal-num">03</span>
+        <h2 class="idx-portal-so">Takhasuska Diaspora</h2>
+        <p class="idx-portal-en">Diaspora Specialist</p>
+        <div class="idx-portal-desc">
+          <p>Somali diaspora physicians and international specialists review referred cases, provide second opinions, and collaborate with local doctors remotely.</p>
+          <p>The platform matches specialists by specialty and language. All clinical records and documents shared by the referring doctor are available before the specialist responds.</p>
+        </div>
+      </div>
+      <div class="idx-portal-right">
+        <a href="specialist.html" class="btn btn-primary idx-portal-btn">Enter Diaspora Specialist</a>
+        <p class="idx-portal-cred">Demo login — ID: SP-001 · Password: specialist2026</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 ADMINISTRATION -->
+  <section class="idx-portal idx-portal--surface">
+    <div class="idx-portal-inner">
+      <div class="idx-portal-left">
+        <span class="idx-portal-num">04</span>
+        <h2 class="idx-portal-so">Maamulka</h2>
+        <p class="idx-portal-en">Administration</p>
+        <div class="idx-portal-desc">
+          <p>The administration portal serves Ministry of Health officials, facility administrators, and donor partners. It provides a live donor dashboard, DHIS2 sync monitoring, facility registry with interactive map, doctor and specialist registries, and full case log with exportable reports.</p>
+        </div>
+      </div>
+      <div class="idx-portal-right">
+        <a href="admin.html" class="btn btn-primary idx-portal-btn">Enter Administration</a>
+        <p class="idx-portal-cred">Demo login — ID: ADMIN-001 · Password: admin2026</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 PRIVATE PATIENT -->
+  <section class="idx-portal idx-portal--white">
+    <div class="idx-portal-inner">
+      <div class="idx-portal-left">
+        <span class="idx-portal-num">05</span>
+        <h2 class="idx-portal-so">Bukaanka Gaarka</h2>
+        <p class="idx-portal-en">Private Patient</p>
+        <div class="idx-portal-desc">
+          <p>Patients with direct internet access and ability to pay can book consultations independently through the private patient portal.</p>
+          <p>This mirrors the AfyaMeet Kenya model adapted for Somalia, with payment via EVC Plus, ZAAD, Sahal, or international card.</p>
+        </div>
+      </div>
+      <div class="idx-portal-right">
+        <a href="patient.html" class="btn btn-primary idx-portal-btn">Register and Book</a>
+        <p class="idx-portal-cred" style="color:var(--ink-3);font-style:italic">No login required — self-registration flow</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 DONATE -->
+  <section class="idx-portal idx-portal--surface">
+    <div class="idx-portal-inner">
+      <div class="idx-portal-left">
+        <span class="idx-portal-num">06</span>
+        <h2 class="idx-portal-so">Tabarucaha</h2>
+        <p class="idx-portal-en">Donate</p>
+        <div class="idx-portal-desc">
+          <p>Community members, diaspora donors, and organisations can contribute to Somalia's health infrastructure.</p>
+          <p>Every donation funds free consultations for patients at public facilities who cannot access private care.</p>
+        </div>
+      </div>
+      <div class="idx-portal-right">
+        <a href="donor.html" class="btn btn-primary idx-portal-btn">Support the Platform</a>
+        <p class="idx-portal-cred" style="color:var(--ink-3);font-style:italic">No login required</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="idx-footer">
+    <span>AfyaMeet Limited</span>
+    <span class="idx-footer-sep">·</span>
+    <span>Banadir Pilot</span>
+    <span class="idx-footer-sep">·</span>
+    <span>2026</span>
+    <span class="idx-footer-sep">·</span>
+    <a href="https://afyameet.com" target="_blank" rel="noopener">afyameet.com</a>
+    <span class="idx-footer-sep">·</span>
+    <a href="privacy.html" class="footer-privacy">Data Privacy &amp; DHIS2 Policy</a>
+  </footer>
+
   <script src="js/db.js"></script>
+  <script>DB.init();</script>
 
   <footer class="afyameet-footer">
     <a href="https://afyameet.com" target="_blank" rel="noopener noreferrer" class="afyameet-footer-link">

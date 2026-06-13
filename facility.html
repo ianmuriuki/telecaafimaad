@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeleCaafimaad · Facility Worker</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body class="page-facility">
+
+  <!-- Login overlay -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <a href="index.html" class="login-back">&#8592; Back to home</a>
+      <div class="login-brand">
+        <div class="login-brand-tc">TeleCaafimaad</div>
+        <div class="login-brand-portal">Shaqaalaha Xarunta</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="loginId">Staff ID</label>
+        <input type="text" id="loginId" class="form-input" placeholder="e.g. FW-001">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" class="form-input" placeholder="Enter password">
+      </div>
+      <span id="loginError" class="form-error" style="display:none;margin-bottom:var(--s1)"></span>
+      <button class="btn btn-primary btn-wide" id="signInBtn">Sign In</button>
+      <p class="login-disclaimer">This system is for authorised healthcare personnel only. Unauthorised access is prohibited.</p>
+    </div>
+  </div>
+
+  <div id="mainInterface" style="display:none">
+
+    <!-- Header -->
+    <header class="fac-header">
+      <div class="fac-header-left">
+        <a href="index.html" class="fac-header-back">&#8592; TeleCaafimaad</a>
+        <span class="fac-name" id="facilityDisplayName">
+          Banadir Regional Hospital
+          <span class="type-badge type-public">Public</span>
+        </span>
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--s2)">
+        <span class="fac-worker-meta" id="workerMeta">Facility Worker · Banadir</span>
+        <button id="signOutBtn" class="btn btn-outline btn-sm" style="color:var(--dark-ink-2);border-color:var(--dark-rule)">Sign Out</button>
+      </div>
+    </header>
+
+    <!-- Tab bar -->
+    <nav class="fac-tabs-bar" role="tablist" aria-label="Facility sections">
+      <button class="fac-tab-btn is-active" data-tab="patients" role="tab">Patients</button>
+      <button class="fac-tab-btn" data-tab="consultation" role="tab">
+        New Consultation
+      </button>
+      <button class="fac-tab-btn" data-tab="referrals" role="tab">Referrals</button>
+      <button class="fac-tab-btn" data-tab="records" role="tab">Records</button>
+      <button class="fac-tab-btn" data-tab="facility" role="tab">My Facility</button>
+    </nav>
+
+    <main class="fac-main">
+
+      <!-- TAB: PATIENTS -->
+      <div class="fac-panel is-active" id="tab-patients">
+        <div class="patient-list-actions">
+          <div class="search-bar">
+            <input type="search" class="search-input" id="patientSearch" placeholder="Search by name or ID…">
+            <button class="btn btn-outline btn-sm" id="patientSearchBtn">Search</button>
+          </div>
+          <button class="btn btn-primary btn-sm" id="registerPatientBtn">+ Register New Patient</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" aria-label="Patient list">
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Name</th>
+                <th>Age / Sex</th>
+                <th>District</th>
+                <th>Last Consultation</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="patientTableBody"></tbody>
+          </table>
+        </div>
+        <p class="empty-msg hidden" id="emptyPatients">No patients found.</p>
+      </div>
+
+      <!-- TAB: NEW CONSULTATION -->
+      <div class="fac-panel" id="tab-consultation">
+        <div class="view-header">
+          <h1 class="view-title">New Consultation</h1>
+        </div>
+
+        <div class="consult-steps" id="consultSteps">
+          <div class="cs-step active" data-step="1">
+            <span class="cs-num">1</span>
+            <span class="cs-label">Select Patient</span>
+          </div>
+          <div class="cs-line"></div>
+          <div class="cs-step" data-step="2">
+            <span class="cs-num">2</span>
+            <span class="cs-label">Select Doctor</span>
+          </div>
+          <div class="cs-line"></div>
+          <div class="cs-step" data-step="3">
+            <span class="cs-num">3</span>
+            <span class="cs-label">Intake Form</span>
+          </div>
+          <div class="cs-line"></div>
+          <div class="cs-step" data-step="4">
+            <span class="cs-num">4</span>
+            <span class="cs-label">Confirm</span>
+          </div>
+        </div>
+
+        <!-- Step 1: Select patient -->
+        <div class="consult-step active" id="cstep1">
+          <div class="search-bar" style="margin-bottom:var(--s2)">
+            <input type="search" class="search-input" id="consultPatientSearch" placeholder="Search patient by name or ID…">
+          </div>
+          <div id="consultPatientList"></div>
+          <div style="margin-top:var(--s2);padding-top:var(--s2);border-top:1px solid var(--rule)">
+            <p style="font-size:var(--t-sm);color:var(--ink-3);margin-bottom:var(--s1)">Patient not registered yet?</p>
+            <button class="btn btn-outline btn-sm" id="registerFromConsult">Register New Patient</button>
+          </div>
+          <div style="margin-top:var(--s3);display:flex;justify-content:flex-end">
+            <button class="btn btn-primary" id="cstep1Next" disabled>Next: Select Doctor &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Select doctor -->
+        <div class="consult-step" id="cstep2">
+          <div id="consultDoctorList"></div>
+          <div style="margin-top:var(--s3);display:flex;justify-content:space-between">
+            <button class="btn btn-outline" id="cstep2Back">&larr; Back</button>
+            <button class="btn btn-primary" id="cstep2Next" disabled>Next: Intake Form &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Intake form -->
+        <div class="consult-step" id="cstep3">
+          <div style="max-width:600px">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="c-bodyArea">Body Area</label>
+                <select id="c-bodyArea" class="form-select">
+                  <option value="">Select</option>
+                  <option value="Head">Head</option>
+                  <option value="Chest">Chest</option>
+                  <option value="Abdomen">Abdomen</option>
+                  <option value="Limbs">Limbs</option>
+                  <option value="Skin">Skin</option>
+                  <option value="General">General</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="c-duration">Duration</label>
+                <select id="c-duration" class="form-select">
+                  <option value="">Select</option>
+                  <option value="Less than 1 day">Less than 1 day</option>
+                  <option value="1-3 days">1-3 days</option>
+                  <option value="4-7 days">4-7 days</option>
+                  <option value="More than 1 week">More than 1 week</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Symptoms (select all that apply)</label>
+              <div class="check-grid">
+                <label class="check-item"><input type="checkbox" value="Fever"> Fever</label>
+                <label class="check-item"><input type="checkbox" value="Pain"> Pain</label>
+                <label class="check-item"><input type="checkbox" value="Cough"> Cough</label>
+                <label class="check-item"><input type="checkbox" value="Fatigue"> Fatigue</label>
+                <label class="check-item"><input type="checkbox" value="Shortness of breath"> Shortness of breath</label>
+                <label class="check-item"><input type="checkbox" value="Vomiting"> Vomiting</label>
+                <label class="check-item"><input type="checkbox" value="Diarrhoea"> Diarrhoea</label>
+                <label class="check-item"><input type="checkbox" value="Rash"> Rash</label>
+                <label class="check-item"><input type="checkbox" value="Dizziness"> Dizziness</label>
+                <label class="check-item"><input type="checkbox" value="Nausea"> Nausea</label>
+                <label class="check-item"><input type="checkbox" value="Headache"> Headache</label>
+                <label class="check-item"><input type="checkbox" value="Other"> Other</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="c-complaint">Presenting Complaint</label>
+              <textarea id="c-complaint" class="form-textarea" rows="3" placeholder="Describe the patient's main complaint in detail…"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="c-type">Consultation Type</label>
+              <select id="c-type" class="form-select">
+                <option value="text">Text (Asynchronous)</option>
+                <option value="video">Video (Live Call)</option>
+              </select>
+            </div>
+            <div id="videoTzNote" class="info-banner info-banner--teal hidden" style="margin-bottom:var(--s2)">
+              Doctor is in <strong id="doctorTzDisplay">—</strong>. A Jitsi video room will be created on submission.
+            </div>
+            <span class="form-error" id="intakeFormError"></span>
+          </div>
+          <div style="margin-top:var(--s3);display:flex;justify-content:space-between">
+            <button class="btn btn-outline" id="cstep3Back">&larr; Back</button>
+            <button class="btn btn-primary" id="cstep3Next">Review &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Confirm -->
+        <div class="consult-step" id="cstep4">
+          <div id="consultConfirmBox" style="max-width:560px"></div>
+          <div style="margin-top:var(--s3);display:flex;justify-content:space-between">
+            <button class="btn btn-outline" id="cstep4Back">&larr; Edit</button>
+            <button class="btn btn-primary" id="submitConsultBtn">Submit Consultation</button>
+          </div>
+        </div>
+
+        <!-- Step 5: Success -->
+        <div class="consult-step" id="cstep5">
+          <div class="info-banner info-banner--green" style="margin-bottom:var(--s3)">
+            Consultation submitted successfully.
+          </div>
+          <div id="consultSuccessBox" style="max-width:560px"></div>
+          <div style="margin-top:var(--s3)">
+            <button class="btn btn-primary" id="newConsultBtn">Start Another Consultation</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: REFERRALS -->
+      <div class="fac-panel" id="tab-referrals">
+        <div class="view-header">
+          <h1 class="view-title">Referrals</h1>
+          <span class="view-meta">Specialist referrals for this facility's patients</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" aria-label="Referral list">
+            <thead>
+              <tr>
+                <th>Ref ID</th>
+                <th>Patient</th>
+                <th>Referring Doctor</th>
+                <th>Specialist</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="referralTableBody"></tbody>
+          </table>
+        </div>
+        <p class="empty-msg hidden" id="emptyReferrals">No referrals found for this facility.</p>
+
+        <!-- Referral detail panel -->
+        <div id="referralDetailPanel" class="hidden" style="margin-top:var(--s3);border:1px solid var(--rule);border-radius:var(--radius);padding:var(--s3)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s2)">
+            <h3 style="font-size:var(--t-md);font-weight:700">Referral Detail</h3>
+            <button class="btn btn-ghost btn-sm" id="closeReferralDetail">Close</button>
+          </div>
+          <div id="referralDetailContent"></div>
+        </div>
+      </div>
+
+      <!-- TAB: RECORDS -->
+      <div class="fac-panel" id="tab-records">
+        <div class="view-header">
+          <h1 class="view-title">Medical Records</h1>
+          <span class="view-meta">Upload and manage patient documents</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:320px 1fr;gap:var(--s4);align-items:start">
+          <div>
+            <h3 class="panel-label">Upload Record</h3>
+            <div class="form-group">
+              <label class="form-label" for="rec-patient">Patient</label>
+              <select id="rec-patient" class="form-select">
+                <option value="">Select patient</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rec-type">Record Type</label>
+              <select id="rec-type" class="form-select">
+                <option value="Lab Result">Lab Result</option>
+                <option value="Prescription">Prescription</option>
+                <option value="Medical Image">Medical Image</option>
+                <option value="Clinical Document">Clinical Document</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rec-filename">File Name</label>
+              <input type="text" id="rec-filename" class="form-input" placeholder="e.g. blood_test_june.pdf">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rec-date">Date of Record</label>
+              <input type="date" id="rec-date" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rec-notes">Notes</label>
+              <textarea id="rec-notes" class="form-textarea" rows="2" placeholder="Brief description of the document…"></textarea>
+            </div>
+            <span class="form-error" id="recError"></span>
+            <button class="btn btn-primary btn-wide" id="uploadRecordBtn">Upload Record</button>
+          </div>
+
+          <div>
+            <h3 class="panel-label">All Documents</h3>
+            <div class="table-wrap">
+              <table class="data-table" aria-label="Documents list">
+                <thead>
+                  <tr>
+                    <th>Patient</th>
+                    <th>Filename</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Uploaded by</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="documentTableBody"></tbody>
+              </table>
+            </div>
+            <p class="empty-msg hidden" id="emptyDocuments">No documents uploaded yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: MY FACILITY -->
+      <div class="fac-panel" id="tab-facility">
+        <div class="view-header">
+          <h1 class="view-title">My Facility</h1>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);align-items:start">
+          <div>
+            <h3 class="panel-label">Facility Profile</h3>
+            <div id="facilityProfile" class="detail-grid"></div>
+
+            <h3 class="panel-label" style="margin-top:var(--s3)">DHIS2 Connection</h3>
+            <div class="detail-grid">
+              <div class="detail-row"><span class="detail-key">Status</span><span class="detail-val"><span class="status-badge status-active">Connected</span></span></div>
+              <div class="detail-row"><span class="detail-key">Last sync</span><span class="detail-val" id="dhis2LastSync">—</span></div>
+              <div class="detail-row"><span class="detail-key">Instance</span><span class="detail-val">Somalia National HMIS</span></div>
+            </div>
+
+            <button class="btn btn-outline btn-sm" style="margin-top:var(--s2)" onclick="alert('In production this opens the national health facility registry.')">
+              View on national registry ↗
+            </button>
+          </div>
+
+          <div>
+            <h3 class="panel-label">Staff</h3>
+            <div id="facilityStaff" class="detail-grid"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Modal: Register New Patient -->
+    <div class="modal-overlay" id="registerModal">
+      <div class="modal modal--wide">
+        <div class="modal-header">
+          <span class="modal-title">Register New Patient</span>
+          <button class="modal-close" id="closeRegisterModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="p-name">Full Name <span style="color:var(--red)">*</span></label>
+              <input type="text" id="p-name" class="form-input" placeholder="Patient's full name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-dob">Date of Birth <span style="color:var(--red)">*</span></label>
+              <input type="date" id="p-dob" class="form-input">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="p-sex">Sex <span style="color:var(--red)">*</span></label>
+              <select id="p-sex" class="form-select">
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other / Prefer not to say</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-district">District <span style="color:var(--red)">*</span></label>
+              <select id="p-district" class="form-select">
+                <option value="">Select</option>
+                <option value="Banadir">Banadir</option>
+                <option value="Bay">Bay</option>
+                <option value="Lower Shabelle">Lower Shabelle</option>
+                <option value="Jubbaland">Jubbaland</option>
+                <option value="Hirshabelle">Hirshabelle</option>
+                <option value="Galmudug">Galmudug</option>
+                <option value="South West">South West</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="p-phone">Phone <span class="form-hint">(optional)</span></label>
+              <input type="tel" id="p-phone" class="form-input" placeholder="+252 6x xxx xxxx">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-nid">National ID / Health Card <span class="form-hint">(optional)</span></label>
+              <input type="text" id="p-nid" class="form-input" placeholder="Verified by facility">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Chronic Conditions <span class="form-hint">(optional, select all that apply)</span></label>
+            <div class="check-grid">
+              <label class="check-item"><input type="checkbox" value="Hypertension"> Hypertension</label>
+              <label class="check-item"><input type="checkbox" value="Diabetes Type 2"> Diabetes Type 2</label>
+              <label class="check-item"><input type="checkbox" value="Asthma"> Asthma</label>
+              <label class="check-item"><input type="checkbox" value="HIV/AIDS"> HIV/AIDS</label>
+              <label class="check-item"><input type="checkbox" value="Tuberculosis"> Tuberculosis</label>
+              <label class="check-item"><input type="checkbox" value="Malaria (recurrent)"> Malaria (recurrent)</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="p-allergies">Allergies <span class="form-hint">(optional)</span></label>
+              <input type="text" id="p-allergies" class="form-input" placeholder="e.g. Penicillin, Sulfa drugs">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="p-insurance">Insurance / Health Card <span class="form-hint">(optional)</span></label>
+              <input type="text" id="p-insurance" class="form-input" placeholder="Card number or scheme name">
+            </div>
+          </div>
+          <label class="form-check">
+            <input type="checkbox" id="p-consent">
+            Patient consents to their data being recorded and shared with treating physicians
+          </label>
+          <span class="form-error" id="registerError" style="display:block;margin-top:var(--s2)"></span>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" id="cancelRegisterBtn">Cancel</button>
+          <button class="btn btn-primary" id="confirmRegisterBtn">Register Patient</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slideover: Patient Profile -->
+    <div class="slideover-overlay" id="patientSlideoverOverlay"></div>
+    <div class="slideover" id="patientSlideover">
+      <div class="slideover-header">
+        <span class="slideover-title" id="slideoverPatientName">Patient Profile</span>
+        <button class="slideover-close" id="closePatientSlideover">&times;</button>
+      </div>
+      <div class="slideover-body">
+        <div id="slideoverDemographics"></div>
+        <div id="slideoverConsultations"></div>
+        <div id="slideoverDocuments"></div>
+        <div id="slideoverReferrals"></div>
+      </div>
+    </div>
+
+  </div><!-- #mainInterface -->
+
+  <script src="js/db.js"></script>
+  <script src="js/facility.js"></script>
+
+  <footer class="afyameet-footer">
+    <a href="https://afyameet.com" target="_blank" rel="noopener noreferrer" class="afyameet-footer-link">
+      <img src="public/afyameet.png" alt="Afyameet" class="afyameet-footer-logo">
+      <span>Powered by Afyameet</span>
+    </a>
+  </footer>
+</body>
+</html>

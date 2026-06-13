@@ -3,155 +3,290 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TeleCaafimaad — Administration</title>
+  <title>TeleCaafimaad · Admin</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/app.css">
-  <script>if(location.hostname==='127.0.0.1')location.replace(location.href.replace('//127.0.0.1','//localhost'));</script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 </head>
 <body class="page-admin">
 
-  <header class="admin-header">
-    <div class="admin-header-left">
-      <a href="index.html" class="admin-back">&#8592;</a>
-      <div class="admin-brand-block">
-        <span class="admin-brand">TeleCaafimaad</span>
-        <span class="admin-brand-sub">Administration — Banadir Pilot</span>
+  <!-- Login Overlay -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <a href="index.html" class="login-back">&#8592; Back to home</a>
+      <div class="login-brand">
+        <span class="login-brand-tc">TeleCaafimaad</span>
+        <span class="login-brand-portal">Maamulka</span>
       </div>
+      <div class="form-group">
+        <label class="form-label" for="loginId">Staff ID</label>
+        <input type="text" id="loginId" class="form-input" placeholder="e.g. ADMIN-001" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" class="form-input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password">
+      </div>
+      <span id="loginError" class="form-error" role="alert" style="display:none"></span>
+      <button class="btn btn-primary btn-full" id="signInBtn">Sign In</button>
+      <p class="login-disclaimer">This portal is restricted to authorised administrators and Ministry of Health officials. Unauthorized access is prohibited.</p>
     </div>
-    <nav class="admin-tabs" role="tablist" aria-label="Admin sections">
-      <button class="tab-btn is-active" role="tab" data-tab="overview" aria-selected="true">Overview</button>
-      <button class="tab-btn" role="tab" data-tab="caselog" aria-selected="false">Case Log</button>
-      <button class="tab-btn" role="tab" data-tab="doctors" aria-selected="false">Doctor Registry</button>
-      <button class="tab-btn" role="tab" data-tab="dhis2" aria-selected="false">DHIS2 Sync</button>
-      <button class="btn btn-sm btn-outline" id="resetDataBtn" style="margin-left:auto">Reset Demo Data</button>
-    </nav>
-  </header>
+  </div>
 
-  <main class="admin-main">
+  <div id="mainInterface" style="display:none">
 
-    <!-- Tab: Overview -->
-    <div class="tab-panel is-active" id="tab-overview" role="tabpanel">
-      <div class="overview-layout">
-        <div class="overview-primary">
-          <div class="overview-section">
-            <h2 class="overview-heading">Pilot Overview</h2>
-            <p class="overview-period">18-month pilot · Banadir District · Started March 2026</p>
-          </div>
-          <div class="metric-block">
-            <div class="metric-row metric-row--large">
-              <div class="metric-item">
-                <span class="mi-value" id="stat-total">—</span>
-                <span class="mi-label">Total consultations</span>
-              </div>
-              <div class="metric-item">
-                <span class="mi-value" id="stat-week">—</span>
-                <span class="mi-label">This week</span>
-              </div>
-              <div class="metric-item">
-                <span class="mi-value" id="stat-doctors">—</span>
-                <span class="mi-label">Active doctors</span>
-              </div>
-            </div>
-            <div class="metric-divider"></div>
-            <div class="metric-row">
-              <div class="metric-item">
-                <span class="mi-value mi-value--accent" id="stat-dhis2">—</span>
-                <span class="mi-label">DHIS2 push success rate</span>
-              </div>
-              <div class="metric-item">
-                <span class="mi-value" id="stat-referrals">—</span>
-                <span class="mi-label">Referrals issued</span>
-              </div>
-              <div class="metric-item">
-                <span class="mi-value" id="stat-rx">—</span>
-                <span class="mi-label">Prescriptions issued</span>
-              </div>
-              <div class="metric-item">
-                <span class="mi-value" id="stat-followup">—</span>
-                <span class="mi-label">Follow-ups completed</span>
-              </div>
-              <div class="metric-item">
-                <span class="mi-value" id="stat-video">—</span>
-                <span class="mi-label">Video calls initiated</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="overview-secondary">
-          <div class="overview-section">
-            <h3 class="panel-label">Pathway Breakdown</h3>
-            <div class="pathway-breakdown" id="pathwayBreakdown"></div>
-          </div>
-          <div class="overview-section">
-            <h3 class="panel-label">District Activity</h3>
-            <div class="district-list" id="districtList"></div>
-          </div>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <a href="index.html" class="page-back-nav page-back-nav--sidebar">&#8592; TeleCaafimaad</a>
+      <div class="sidebar-brand">
+        <a href="index.html" class="sidebar-logo">TC</a>
+        <div class="sidebar-doctor-info">
+          <span class="sdi-name">Admin Console</span>
+          <span class="sdi-spec">TeleCaafimaad Platform</span>
         </div>
       </div>
-    </div>
-
-    <!-- Tab: Case Log -->
-    <div class="tab-panel" id="tab-caselog" role="tabpanel">
-      <div class="table-header">
-        <h2 class="view-title">Case Log</h2>
-        <span class="view-meta" id="caselogMeta"></span>
+      <nav class="sidebar-nav" role="navigation">
+        <button class="snav-item is-active" data-tab="overview">Overview</button>
+        <button class="snav-item" data-tab="caselog">Case Log</button>
+        <button class="snav-item" data-tab="facilities">Facilities</button>
+        <button class="snav-item" data-tab="doctors">Doctor Registry</button>
+        <button class="snav-item" data-tab="specialists">Specialist Registry</button>
+        <button class="snav-item" data-tab="dhis2">DHIS2 Sync</button>
+        <button class="snav-item" data-tab="donor">Donor Dashboard</button>
+        <button class="snav-item" data-tab="reset">Reset Data</button>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="status-dot status-dot--active"></span>
+        <span style="color:var(--dark-ink-2);font-size:var(--t-xs)">System Online</span>
+        <button class="btn btn-ghost btn-sm" id="signOutBtn" style="margin-top:var(--s1);width:100%">Sign Out</button>
       </div>
-      <div class="table-wrap">
-        <table class="data-table" id="caseTable" aria-label="Consultation case log">
-          <thead>
-            <tr>
-              <th>Case ID</th>
-              <th>Date</th>
-              <th>District</th>
-              <th>Specialty</th>
-              <th>Diagnosis</th>
-              <th>Pathway / Mode</th>
-              <th>DHIS2</th>
-            </tr>
-          </thead>
-          <tbody id="caseTableBody"></tbody>
-        </table>
-      </div>
-      <div class="pagination" id="pagination" aria-label="Table pagination"></div>
-    </div>
+    </aside>
 
-    <!-- Tab: Doctor Registry -->
-    <div class="tab-panel" id="tab-doctors" role="tabpanel">
-      <div class="table-header">
-        <h2 class="view-title">Doctor Registry</h2>
-        <span class="view-meta">Pilot cohort — click a row to expand details</span>
+    <main class="admin-main">
+      <div class="dr-mobile-header">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">&#9776;</button>
+        <span class="mobile-view-title" id="mobileViewTitle">Overview</span>
       </div>
-      <div class="doctor-registry" id="doctorRegistry"></div>
-    </div>
 
-    <!-- Tab: DHIS2 Sync -->
-    <div class="tab-panel" id="tab-dhis2" role="tabpanel">
-      <div class="table-header">
-        <h2 class="view-title">DHIS2 Sync</h2>
-        <span class="view-meta">National instance · Somalia HMIS · /api/tracker</span>
+      <!-- Tab: Overview -->
+      <div class="admin-tab is-active" id="tab-overview">
+        <div class="view-header">
+          <h1 class="view-title">Platform Overview</h1>
+          <span class="view-meta" id="overviewDate"></span>
+        </div>
+        <div class="stat-band" id="statBand"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);margin-top:var(--s4)">
+          <div>
+            <h3 class="panel-label">Consultation Pathways</h3>
+            <div id="pathwayBars"></div>
+          </div>
+          <div>
+            <h3 class="panel-label">Recent Activity</h3>
+            <div id="recentActivity"></div>
+          </div>
+        </div>
       </div>
-      <div class="dhis2-reconcile" id="reconcileSummary"></div>
-      <div class="table-wrap">
-        <table class="data-table" id="dhis2Table" aria-label="DHIS2 push log">
-          <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>Case ID</th>
-              <th>District</th>
-              <th>Status</th>
-              <th>HTTP</th>
-              <th>Message</th>
-            </tr>
-          </thead>
-          <tbody id="dhis2TableBody"></tbody>
-        </table>
+
+      <!-- Tab: Case Log -->
+      <div class="admin-tab" id="tab-caselog">
+        <div class="view-header">
+          <h1 class="view-title">Case Log</h1>
+          <span class="view-meta" id="caselogMeta"></span>
+        </div>
+        <div class="toolbar">
+          <input type="search" class="search-input" id="caseSearch" placeholder="Filter by case ID, district, pathway…">
+          <select id="caseStatusFilter" class="form-select" style="width:auto">
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" aria-label="Case log">
+            <thead>
+              <tr>
+                <th>Case ID</th>
+                <th>Patient</th>
+                <th>District</th>
+                <th>Facility</th>
+                <th>Doctor</th>
+                <th>Symptoms</th>
+                <th>Pathway</th>
+                <th>Status</th>
+                <th>DHIS2</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="caselogBody"></tbody>
+          </table>
+        </div>
+        <p class="empty-msg hidden" id="emptyCaselog">No cases found.</p>
       </div>
-    </div>
 
-  </main>
+      <!-- Tab: Facilities -->
+      <div class="admin-tab" id="tab-facilities">
+        <div class="view-header">
+          <h1 class="view-title">Facilities</h1>
+          <span class="view-meta">Active facilities in the Banadir pilot</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 380px;gap:var(--s4);align-items:start">
+          <div>
+            <div class="table-wrap">
+              <table class="data-table" aria-label="Facilities">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Facility</th>
+                    <th>District</th>
+                    <th>Type</th>
+                    <th>Doctors</th>
+                    <th>Cases</th>
+                    <th>DHIS2</th>
+                  </tr>
+                </thead>
+                <tbody id="facilitiesBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h3 class="panel-label">Facility Map</h3>
+            <div id="facilitiesMap" class="map-container"></div>
+          </div>
+        </div>
+      </div>
 
-  <script src="js/db.js"></script>
-  <script src="js/admin.js"></script>
+      <!-- Tab: Doctor Registry -->
+      <div class="admin-tab" id="tab-doctors">
+        <div class="view-header">
+          <h1 class="view-title">Doctor Registry</h1>
+          <span class="view-meta" id="docRegistryMeta"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" aria-label="Doctor registry">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Specialty</th>
+                <th>Facility</th>
+                <th>District</th>
+                <th>Cases</th>
+                <th>NHPC</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="doctorsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Specialist Registry -->
+      <div class="admin-tab" id="tab-specialists">
+        <div class="view-header">
+          <h1 class="view-title">Specialist Registry</h1>
+          <span class="view-meta" id="specRegistryMeta"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" aria-label="Specialist registry">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Specialty</th>
+                <th>Location</th>
+                <th>Languages</th>
+                <th>Cases</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="specialistsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: DHIS2 Sync -->
+      <div class="admin-tab" id="tab-dhis2">
+        <div class="view-header">
+          <h1 class="view-title">DHIS2 Sync Log</h1>
+          <span class="view-meta" id="dhis2Meta">National instance · Somalia HMIS · /api/tracker</span>
+        </div>
+        <div class="toolbar">
+          <select id="dhis2StatusFilter" class="form-select" style="width:auto">
+            <option value="">All statuses</option>
+            <option value="Success">Success</option>
+            <option value="Failed">Failed</option>
+            <option value="Pending">Pending</option>
+          </select>
+          <button class="btn btn-outline btn-sm" id="syncAllBtn">Retry Failed</button>
+        </div>
+        <div class="dhis2-reconcile" id="reconcileSummary"></div>
+        <div class="table-wrap">
+          <table class="data-table" aria-label="DHIS2 sync log">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Case / Ref ID</th>
+                <th>District</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>HTTP</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody id="dhis2Body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Donor Dashboard -->
+      <div class="admin-tab" id="tab-donor">
+        <div class="view-header">
+          <h1 class="view-title">Donor Dashboard</h1>
+          <span class="view-meta">Fundraising overview and district coverage</span>
+        </div>
+        <div class="stat-band" id="donorStatBand"></div>
+        <div style="display:grid;grid-template-columns:1fr 380px;gap:var(--s4);margin-top:var(--s4);align-items:start">
+          <div>
+            <h3 class="panel-label">District Coverage</h3>
+            <div id="districtCoverage"></div>
+          </div>
+          <div>
+            <h3 class="panel-label">Coverage Map</h3>
+            <div id="coverageMap" class="map-container"></div>
+          </div>
+        </div>
+        <div style="margin-top:var(--s4)">
+          <h3 class="panel-label">Donation Log</h3>
+          <div class="table-wrap">
+            <table class="data-table" aria-label="Donation log">
+              <thead><tr><th>Date</th><th>Donor</th><th>Amount</th><th>Method</th><th>Tier</th></tr></thead>
+              <tbody id="donationLogBody"></tbody>
+            </table>
+          </div>
+          <p class="empty-msg hidden" id="emptyDonations">No donations recorded yet.</p>
+        </div>
+      </div>
+
+      <!-- Tab: Reset Data -->
+      <div class="admin-tab" id="tab-reset">
+        <div class="view-header">
+          <h1 class="view-title">Reset Data</h1>
+        </div>
+        <div style="max-width:540px">
+          <p style="font-size:var(--t-base);color:var(--ink-2);line-height:1.7;margin-bottom:var(--s3)">
+            This deletes all localStorage data and re-seeds the database with the pilot demonstration dataset. Use this to restore a clean demo state between presentations.
+          </p>
+          <div class="info-banner" style="margin-bottom:var(--s3)">
+            All cases, patients, referrals, and documents will be permanently deleted and replaced with seed data. This action cannot be undone.
+          </div>
+          <button class="btn btn-danger" id="resetBtn">Wipe &amp; Re-seed Database</button>
+          <div id="resetSuccess" class="info-banner info-banner--green hidden" style="margin-top:var(--s2)">
+            Database reset and re-seeded successfully. Reloading…
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
 
   <footer class="afyameet-footer">
     <a href="https://afyameet.com" target="_blank" rel="noopener noreferrer" class="afyameet-footer-link">
@@ -159,5 +294,11 @@
       <span>Powered by Afyameet</span>
     </a>
   </footer>
+
+  </div><!-- end mainInterface -->
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLs=" crossorigin=""></script>
+  <script src="js/db.js"></script>
+  <script src="js/admin.js"></script>
 </body>
 </html>
