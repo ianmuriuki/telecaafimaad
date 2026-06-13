@@ -255,7 +255,8 @@ var DB = (function () {
     var donations  = _seedDonations();
 
     if(!localStorage.getItem(KEYS.FACILITIES))  _set(KEYS.FACILITIES,  facilities);
-    if(!localStorage.getItem(KEYS.DOCTORS))      _set(KEYS.DOCTORS,     doctors);
+    var _storedDoctors = _get(KEYS.DOCTORS);
+    if(!_storedDoctors || !_storedDoctors.length || !_storedDoctors[0].facility_id) _set(KEYS.DOCTORS, doctors);
     if(!localStorage.getItem(KEYS.SPECIALISTS))  _set(KEYS.SPECIALISTS, specialists);
     if(!localStorage.getItem(KEYS.PATIENTS))     _set(KEYS.PATIENTS,    patients);
     if(!localStorage.getItem(KEYS.CASES))        _set(KEYS.CASES,       cases);
